@@ -1,0 +1,70 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=20mm]{geometry}
+\usepackage{math}
+\usepackage{unicode}
+
+\def\pcost{ν_\mathrm{p}}
+
+
+\DeclareMathOperator\Exp{Exp} % Polya exponential
+\begin{document}
+
+\section{Optimal trees}
+
+\begin{df}
+Let~$\ro T(n)$ be the set of all non-planar trees
+with $n$ leaves such that no node has a single child.
+\end{df}
+
+\subsection{Counting trees}
+The single-child condition ensures that $\ro T(n)$~is a finite set.
+Let~$T$ be the generating series
+$T(z) = ∑ \abs{\ro T(n)}\: z^n$;
+then $T$~satisfies the functional equation
+\begin{split}
+T(z) = x + \Exp(T)(z) - T(z) - 1,
+\end{split}
+where $\Exp(T)$ is the Polya exponential, defined by
+$\Exp(f)(z) = ∑_{n≥0} f(x^n)/n$.
+
+\subsection{Optimal trees}
+
+We use the following syntax for trees: $L$ is the tree with only one
+leaf, and given trees $t_1, …, t_n$, we write $\acco{t_1, …, t_n}$
+for the tree where $(t_i)$ are the branches of the root node.
+Note that, since our trees are non-planar, this tree
+does not depend on the ordering of the trees~$t_i$.
+
+We define the following tree families:
+\begin{enumerate}
+\item $T_2(1) = L$ and $T_2(n) = \acco{T_2(\floor{n/2}),
+T_2(\ceil{n/2})}$ for~$n ≥ 2$;
+\item $T_{23}(1) = L$,
+$T_{23}(3⋅2^k) = \acco{T_{23}(2^k), T_{23}(2^k), T_{23}(2^k)}$,
+and $T_{23}(n) = \acco{T_{23}(\floor{n/2}), T_{23}(\ceil{n/2})}$
+otherwise.
+\end{enumerate}
+In particular, one easily checks that $T_{23}(n) = T_2(n)$
+whenever $n$~is a power of two.
+
+
+\begin{prop}
+Let~$n$ be an integer and~$b = \floor{\log_2(n)}$.
+Then:
+\begin{enumerate}
+\item $\pcost(T_{23}(n)) =
+\begin{cases}
+b⋅i \,+\, 4(i - 3⋅2^{b-1}) & \text{if $3 ⋅ 2^{b-1}< n < 2^{b+1}$},\\
+b⋅i & \text{if $2^{b} ≤ n ≤ 3⋅2^{b-1}$.}
+\end{cases}
+\end{enumerate}
+\end{prop}
+
+
+\begin{proposition}
+
+\end{proposition}
+
+\end{document}
