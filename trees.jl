@@ -1,4 +1,97 @@
 
+"""    Implementation of the `QuickHull` algorithm, after
+https://en.wikipedia.org/wiki/Quickhull#Pseudocode_for_2D_set_of_points.
+Returns all repeated or collinear points (not a minimal convex hull).
+"""
+module WeakHull
+function argminmax(list)
+	a = b = nothing
+	va = vb = nothing
+	for (i, v) in pairs(list)
+		(isnothing(a) || v < va) && ((a, va) = (i, v))
+		(isnothing(b) || v > vb) && ((b, vb) = (i, v))
+	end
+	return a, b
+end
+struct Segment{P, T}
+	# two endpoints
+	a:: P
+	b:: P
+	# precomputed coefficients of area(a, b, (x,y)) == ux + vy + w:
+	u:: T
+	v:: T
+	w:: T
+end
+@inline Segment(a, b) = Segment(a, b, a[2]-b[2], b[1]-a[1], a[1]*b[2]-a[2]*b[1])
+@inline area(s::Segment, (x,y)) = x*s.u + y*s.v + s.w
+@inline Base.reverse(s::Segment) = Segment(s.b, s.a, -s.u, -s.v, -s.w)
+# """    Oriented area of the triangle abc"""
+# @inline area((a,b),(c,d),(e,f)) = (d-f)*a + (f-b)*c + (b-d)*e
+# """"   Returns u, v, w such that area(a, b, (x,y)) = ux + vy + w."""
+# @inline area_precalc((a,b), (c,d)) = (b-d, c-a, a*d-b*c)
+	
+function quickhull(points)
+	imin, imax = argminmax(p[1] for p in points)
+	l1 = sizehint!(empty(points), length(points)÷2)
+	l2 = sizehint!(empty(points), length(points)÷2)
+	a, b = points[imin], points[imax]
+	seg = Segment(a, b)
+	ha = [a]; hb = [b]
+	for (i, p) in pairs(points)
+		i ∈ (imin, imax) && continue # a, b are already included (once each)
+		p == a && (push!(ha, p); continue)
+		p == b && (push!(hb, p); continue)
+		t = area(seg, p)
+		t ≥ 0 && push!(l1, p)
+		t ≤ 0 && push!(l2, p)
+	end
+	h1 = quickhull(l1, seg)
+	h2 = quickhull(l2, reverse(seg))
+	[ h1; ha; h2; hb]
+end
+"""    Returns the convex hull of points on the left side of segment."""
+function quickhull(points, seg::Segment)
+# 	println("points on left of $(seg.a) -- $(seg.b):\n  $points\n")
+	isempty(points) && return points
+	l1 = sizehint!(empty(points), length(points)÷2)
+	l2 = sizehint!(empty(points), length(points)÷2)
+	(w, imax) = findmax(area(seg, p) for p in points)
+	if iszero(w)
+# 		println("[7m POINTS ARE ALIGNED[m")
+		u = seg.b - seg.a
+		if u[1] > 0
+			return sort(points; by=p->p[1], rev=true)
+		elseif u[1] < 0
+			return sort(points; by=p->p[1])
+		elseif u[2] > 0
+			return sort(points; by=p->p[2], rev=true)
+		elseif u[2] < 0
+			return sort(points; by=p->p[2])
+		else
+			return points
+		end
+	end
+	c = points[imax]
+	seg1 = Segment(seg.a, c)
+	seg2 = Segment(c, seg.b)
+	hc = [c]
+	for (i, p) in pairs(points)
+		i == imax && continue
+		p == c && (push!(l1, p); continue)
+		t1 = area(seg1, p)
+		t1 ≥ 0 && (push!(l1, p); continue)
+		t2 = area(seg2, p)
+		t2 ≥ 0 && push!(l2, p)
+	end
+	h1 = quickhull(l1, seg1)
+	h2 = quickhull(l2, seg2)
+	h = [ h2; hc; h1 ]
+# 	println("quickhull of points $points from $(seg.a) -- $(seg.b):")
+# 	println("  $h")
+	return h
+end
+export quickhull
+end # module
 """    Stacks with a statically allocated maximum size."""
 module StaticStacks
 using StaticArrays
@@ -34,8 +127,9 @@ export StaticStack
 end # module
 module Trees
 # using ResumableFunctions
-using StaticArrays
-using LazySets: convex_hull
+# using StaticArrays
+# using LazySets: convex_hull
+using ..WeakHull: quickhull; convex_hull = quickhull
 using Printf
 using ..StaticStacks
 using TOML
@@ -73,6 +167,8 @@ struct PostTree{V} <: AbstractTree
 	degrees::V
 end
 
+# FIXME: this should be up to permutation of branches...
+Base.:(==)(t1::PostTree, t2::PostTree) = t1.degrees == t2.degrees
 function PostTree(s::AbstractString)
 	v = Int[]
 	stack = Int[]
@@ -93,7 +189,7 @@ function PostTree(s::AbstractString)
 end
 
 empty_stack(::Vector) = Int[]
-empty_stack(::StaticVector{N}) where{N} = StaticStack{N,Int}()
+# empty_stack(::StaticVector{N}) where{N} = StaticStack{N,Int}()
 
 # PostTree(deg::AbstractVector) =
 # 	compute_costs!(PostTree(deg, similar(deg, Int), similar(deg, Int)))
@@ -448,11 +544,11 @@ function compute_best_trees(n; bound=512)
 			envelope = convex_hull(envelope)
 # 			println("  => reduced to ", length(envelope))
 		end
-		for (i, q) in pairs(envelope)
-			if (@view p[1:2]) == (@view q[1:2])
-				insert!(envelope, i, p)
-			end
-		end
+# 		for (i, q) in pairs(envelope)
+# 			if (@view p[1:2]) == (@view q[1:2])
+# 				insert!(envelope, i, p)
+# 			end
+# 		end
 	end
 	push!(envelope,
 		TreeCost(PostTree(Int[]), x1, y2+1),
@@ -504,6 +600,10 @@ end
 """    Outputs a single `PostTree` to an IO as a LaTeX document,
 using TikZ and TikZ-qtree packages."""
 function tikz(io::IO, t::PostTree, pc=0, sc=0)
+	n = nleaves(t)
+	t.degrees == _vec_t2(n) && print(io, "\$\\mathbf{T_2($n)}\$: ")
+	t.degrees == _vec_t23b(n) && print(io, "\$\\mathbf{T_{23}($n)}\$: ")
+	t.degrees == _vec_t3(n) && print(io, "\$\\mathbf{T_3($n)}\$: ")
 	print(io, "\$(", pc, ", ", sc, ")\$:\n\n")
 	print(io, "\\Tree")
 	s = empty_stack(t.degrees)
@@ -524,18 +624,38 @@ function tikz(io::IO, t::PostTree, pc=0, sc=0)
 		end
 	end
 end
-function tikz(io::IO, v::AbstractVector{<:TreeCost})
+function tikz(io::IO, v::AbstractVector{<:TreeCost}; degrees=false, kw...)
 	tikz(io, v[1].tree, v[1][1], v[1][2])
+	τ1 = nothing
 	for i in 2:length(v)
 		((x1, y1), (x2, y2)) = v[i-1:i]
-		λ = (y2-y1)/(x2-x1)
-		println(io, "\n\n(\$\\lambda = ", λ, "\$)\n\n")
+		if x1 == x2
+			println(io, "\n\n \\textit{same values as:}\n")
+		else
+			τ = -(y2-y1)//(x2-x1)
+			if τ == τ1
+				lead = raw"\hbox to 1em{\hss.\hss}"
+			else
+				lead = raw"\vrule height .1pt depth 0pt"
+				τ1 = τ
+			end
+				print(io, "\n\n\\noindent (\$\\tau = ")
+				if denominator(τ) > 1
+					print(io, numerator(τ), "/", denominator(τ))
+				else
+					print(io, numerator(τ))
+				end
+				print(io, "\$) \\leaders", lead, "\\hfill \\hbox{}\n\n")
+		end
 		println(io, "\\hbox to \\hsize{%")
 		tikz(io, v[i].tree, v[i][1], v[i][2])
 		println(io, "\\hfill")
-		f=tempname()
-		graphviz(v[i].tree, f)
-		println(io, "\n\\vtop{\\vss\\includegraphics[scale=.30]{$f.pdf}}\\hfill}\n\n")
+		if degrees
+			f=tempname()
+			graphviz(v[i].tree, f)
+			println(io, "\\vtop{\\vss\\includegraphics[scale=.30]{$f.pdf}}\\hfill")
+		end
+		println(io, "}\n\n")
 	end
 end
 """"    Merges all nodes of the same degree, returning the reduced graph
@@ -598,7 +718,18 @@ function graphviz(links::Dict, filename=tempname())
 end
 @inline graphviz(tree::PostTree, fn...) = graphviz(reduced_graph(tree), fn...)
 @inline graphviz(tree::TreeCost, fn...) = graphviz(tree.tree, fn...)
-function report(file="/tmp/trees_report.tex")
+
+_vec_t2(n) = isone(n) ? [0] : [_vec_t2((n+1)÷2); _vec_t2(n÷2); 2]
+_vec_t23(n) = isone(n) ? [0] :
+	iszero(n%3) && ispow2(n÷3) ? [_vec_t23(n÷3); _vec_t23(n÷3); _vec_t23(n÷3); 1; 3] :
+	[_vec_t23((n+1)÷2); _vec_t23(n÷2); 2]
+_vec_t3(n) = n ≤ 2 ? _vec_t23(n) :
+	[_vec_t3((n+2)÷3); _vec_t3((n+1)÷3); _vec_t3(n÷3); 1; 3]
+_vec_t23b(n) = n ≤ 2 ? _vec_t2(n) : n == 3 ? [0,0,0,1,3] :
+	[_vec_t23b(n÷2); _vec_t23b((n+1)÷2); 2]
+
+function report(; interval=0:typemax(Int), file="/tmp/trees_report.tex",
+	kwargs...)
 	open(file, "w") do io
 		println(io, raw"""
 \documentclass{article}
@@ -606,12 +737,16 @@ function report(file="/tmp/trees_report.tex")
 \usepackage{tikz-qtree}
 \usepackage{datetime}
 \usepackage{graphicx}
+
+\tikzset{level distance=2mm,sibling distance=0mm}
+\tikzset{edge from parent path=(\tikzparentnode.north) -- (\tikzchildnode.north)}
 \begin{document}
 Compiled \today\ \currenttime """)
-		for (k,v) in sort(pairs(BEST_TREES); by=first)
+		for k in sort(collect(keys(BEST_TREES))); v = BEST_TREES[k]
+			k ∈ interval || continue
 			println("\n\e[7m Trees with ", k, " leaves \e[m")
-			println(io, "\n\\newpage{\\Large\\textbf{Best ($(length(v))) trees with \$$k\$ leaves}}\n")
-			tikz(io, v)
+			println(io, "\n\\newpage{\\Large\\textbf{Best trees with $k leaves  ($(length(v)))}}\n")
+			tikz(io, v; kwargs...)
 		end
 		println(io, "\\end{document}")
 	end
@@ -651,12 +786,22 @@ Compiled \today\ \currenttime
 			println(io, "\\draw[thin] ($m, $n)--($m, $(n+1));")
 			end
 			for (i, t) in pairs(v)
-				f = graphviz(t.tree)
 				x = (get(λ, i-1, maximum(λ)+1) + get(λ, i, 0))/2
 				y1 = y - .1 + .2*(i%2)
-				println(io, """
+				print(io, """
 % (x=$x) best tree $i: $(t.tree.degrees)
-\\node at ($x, $y1) {\\includegraphics[scale=.30]{$f.pdf}};""")
+\\node at ($x, $y1) {""")
+				if t.tree.degrees == _vec_t2(n)
+					print(io, "\$\\mathbf{T_2}\$")
+				elseif t.tree.degrees == _vec_t23b(n)
+					print(io, "\$\\mathbf{T_{23}}\$")
+				elseif t.tree.degrees == _vec_t3(n)
+					print(io, "\$\\mathbf{T_3}\$")
+				else
+					f = graphviz(t.tree)
+					print(io, """\\includegraphics[scale=.30]{$f.pdf}""")
+				end
+				println(io, "};")
 			end
 		end
 		println(io, raw"""
@@ -670,6 +815,8 @@ Compiled \today\ \currenttime
 end
 end # module
 
+T=Trees
+Q=WeakHull
 function test_vectors(filename::AbstractString)
 	open(filename) do f
 		for line in eachline(f)
@@ -700,5 +847,5 @@ end
 # t1=Trees.nexttree(t0)
 # t1=Trees.nexttree!(deepcopy(t0))
 t=Trees.PostTree([0, 0, 0, 1, 3, 0, 0, 0, 1, 3, 0, 0, 1, 1, 4])
-run(`sh -c 'rm -f /tmp/jl_\* /tmp/nodes*'`)
+# run(`sh -c 'rm -f /tmp/jl_\* /tmp/nodes*'`)
 # Trees.graphviz(t, "/tmp/nodes")
