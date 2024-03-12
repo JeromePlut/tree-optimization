@@ -814,9 +814,20 @@ Compiled \today\ \currenttime
 	end
 end
 end # module
+module TreeFuncs
+global D = 2
+_parts(n, d) = ((n+i)÷d for i in 0:d-1)
+@inline Dr(f; d=D) = (n->f(n)-sum(f.(_parts(n, d))))
+@inline In(f; d=D) = n-> n ≤ 1 ? f(0)/(1-d) :
+	f(n) + sum(In(f).(_parts(n, d)))
+@inline J(n) = n + iszero(n)
+@inline U(n) = (n ≤ 1)
 
-T=Trees
-Q=WeakHull
+end # module
+
+T = Trees
+Q = WeakHull
+F = TreeFuncs
 function test_vectors(filename::AbstractString)
 	open(filename) do f
 		for line in eachline(f)
