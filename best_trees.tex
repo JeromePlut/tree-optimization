@@ -15,7 +15,6 @@
 \def\gcost{ν}
 	
 
-
 \DeclareMathOperator\Exp{Exp} % Polya exponential
 \begin{document}
 
@@ -174,8 +173,7 @@ Let~$d$ be an integer and define the family of trees~$T_d$
 as the regular family of trees with degree~$\min(n,d)$ for~$n ≥ 2$.
 Then the parent cost of~$T_d(n)$ is
 \begin{align}
-\pcost(T_d(n)) = E_d(n) - f_d(n)
-&= \begin{cases}
+\pcost(T_d(n)) = E_d(n) - f_d(n) &= \begin{cases}
 (e+2) n - 2 d^e & \text{for~$n ∈ [d^e, 2 d^e]$,}\\
 (e+1) n & \text{for~$n ∈ [2 d^e, d^{e+1}]$.}
 \end{cases}
@@ -185,6 +183,18 @@ Then the parent cost of~$T_d(n)$ is
 \begin{proof}
 We easily check that $\ro D_d(\pcost(T_d)) = J - U$.
 \end{proof}
+
+
+\begin{prop}
+Let~$T_{2,3}$ be the regular family of trees
+with degree $d_2 = 2$, $d_3 = 3$ and~$d_n = 2$ for~$n ≥ 4$. Then:
+\begin{align}
+\pcost(T_{2,3}(n)) &= \begin{cases}
+e n & \text{for $n ∈ [2^e, \frac{3}{2} ⋅ 2^e]$,}\\
+(e+4) n - 6 ⋅ 2^e & \text{for $n ∈ [\frac{3}{2}⋅2^e, 2^{e+1}]$.}
+\end{cases}
+\end{align}
+\end{prop}
 
 % \subsubsection{Binary trees $T_2(n)$}
 % 

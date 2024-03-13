@@ -815,6 +815,7 @@ Compiled \today\ \currenttime
 end
 end # module
 module TreeFuncs
+using Printf
 global D = 2
 _parts(n, d) = ((n+i)÷d for i in 0:d-1)
 @inline Dr(f; d=D) = (n->f(n)-sum(f.(_parts(n, d))))
@@ -824,6 +825,7 @@ _parts(n, d) = ((n+i)÷d for i in 0:d-1)
 @inline U(n) = (n ≤ 1)
 @inline V(n) = n - isone(n)
 @inline clog(n;d=D)=iszero(n) ? 0 : ceil(Int,log(d,n))
+@inline flog(n;d=D)=iszero(n) ? 0 : floor(Int,log(d,n))
 @inline function E(n; d=D)
 	e = clog(n; d)
 	e*n+d^e//(1-d)
@@ -834,20 +836,23 @@ end
     
  - `degree`: the number of branches in the general case;
  - `exceptions`: same, for the exceptional cases."""
-struct TreeFunc
+struct RegularTree
 	degree::Int
 	exceptions::Dict{Int,Int}
 	pcost::Vector{Int} # cached values of parent cost
 	scost::Vector{Int} # cached values of sibling cost
 end
-@inline TreeFunc(d, x::Pair{<:Integer,<:Integer}...) =
-	TreeFunc(d, Dict(x...), [], [])
 
-const T2=TreeFunc(2)
-const T23=TreeFunc(2, 3=>3)
-const T3=TreeFunc(3)
-const T4=TreeFunc(4)
-const T5=TreeFunc(5)
+@inline RegularTree(d, x::Pair{<:Integer,<:Integer}...) =
+	RegularTree(d, Dict(x...), [], [])
+
+const T2=RegularTree(2)
+const T23=RegularTree(2, 3=>3)
+const T3=RegularTree(3, 2=>2)
+const T32=RegularTree(3, 2=>2, 4=>2)
+const T34=RegularTree(3, 2=>2, 4=>4)
+const T4=RegularTree(4)
+const T5=RegularTree(5)
 """    same as `Base.get!`, but resizes `Vector`s if needed.
 Fills with `def` the intermediate entries."""
 function _get!(f::Function, v::Vector, i, def)
@@ -861,29 +866,97 @@ function _get!(f::Function, v::Vector, i, def)
 	end
 	return v[i]
 end
-pcost(f::TreeFunc) = (n->pcost(f, n))
-pcost(f::TreeFunc, n) = _get!(f.pcost, n+1, -1) do
+"""    Returns a symbolic description of parent cost for these trees."""
+function parent_cost(t::RegularTree)
+	d = t.degree
+	c = flog(maximum(keys(t.exceptions); init=d); d)
+	# let c(n) be the parent cost: we know that
+	# on each interval [d^e, d^(e+1)], c(n) = E(n) + (piecewise affine)
+	#  = e n + 1/(1-d) + (piecewise affine),
+  # where the affine parts depend on n/d^e:
+  #  slope a = function of (n/d^e)
+  #  origin b = d^e * function of (n/d^e)
+	parts = affine_parts(pcost(t), d^c:d^(c+1))
+	for (x0, x1, a, b) ∈ parts # relative to d^c:
+		w0, w1 = (x0, x1).// d^c
+		z0 = isone(w0) ? "$d^e" :
+			@sprintf("%s*%d^e", isone(denominator(w0)) ? numerator(w0) : w0, d)
+		z1 = (w1 == d) ? "$d^(e+1)" :
+			@sprintf("%s*%d^e", isone(denominator(w1)) ? numerator(w1) : w1, d)
+		# we see f(x) = E_d(x) + α x + d^c β = (c+1+α) x + d^c(β-1/(d-1))
+		u = a-c
+		v = b//d^c
+		s = iszero(u) ? "e" : @sprintf("(e%+d)", u)
+		t = iszero(v) ? "" :
+			@sprintf("%+s*%d^e", isone(denominator(v)) ? numerator(v) : v, d)
+		println("on interval [$z0, $z1]: y = $s*x $t")
+	end
+end
+pcost(t::RegularTree) = (n->pcost(t, n))
+pcost(t::RegularTree, n) = _get!(t.pcost, n+1, -1) do
 	(n ≤ 1) && return 0
-	d = get(f.exceptions, n, f.degree)
+	d = get(t.exceptions, n, t.degree)
 	a, b = divrem(n, d)
 	# `d-b` branches of weight `a` and `b` branches of weight `a+1`:
-	c = n + (d-b)*pcost(f, a)
-	(b > 0) && (c+= b*pcost(f, a+1))
+	c = n + (d-b)*pcost(t, a)
+	(b > 0) && (c+= b*pcost(t, a+1))
 	return c
 end
 function test(d, N=10)
-	t = TreeFunc(d)
+	t = RegularTree(d)
 	f = n->pcost(t, n)
 	for n in 0:N
 		println("$n: $(f(n)) E_$d+J=$(E(n;d)+J(n))       dr=$(Dr(f;d)(n)) J-U=$(J(n)-U(n)) ")
 	end
 end
 
+"""    A piecewise function, of the form `y ↦ a_i * x + b_i`
+on the interval `[x_i, x_{i+1}]`."""
+struct PiecewiseAffine{X,A,B}
+	bounds::Vector{X}
+	slopes::Vector{A}
+	origins::Vector{B}
+end
+Base.iterate(p::PiecewiseAffine, i = 1) = i > length(p.slopes) ? nothing :
+	((p.bounds[i], p.bounds[i+1], p.slopes[i], p.origins[i]), i+1)
+Base.length(p::PiecewiseAffine) = length(p.slopes)
+function Base.display(p::PiecewiseAffine)
+	@assert length(p.bounds) == length(p.slopes)+1
+	@assert length(p.origins) == length(p.slopes)
+	for (x0, x1, a, b) ∈ p
+		println(" on interval [$x0, $x1]: y = $a*x + $b")
+	end
+end
 
+function affine_parts(f, interval)
+	function register!(p::PiecewiseAffine, x, a, y)
+		# add a new affine part up to (x,y) with slope a:
+		push!(p.bounds, x)
+		push!(p.slopes, a)
+		push!(p.origins, y - a*x)
+#  		println("on interval [$u, $v]: f(n)=$a*n + $(y-a*v) (e=$(flog(u;d)))") # (check: f($v)=$(f(v))=$y")
+	end
+	x0 = m = first(interval) # start of current interval
+	y1 = y0 = f(x0)
+	s1 = s0 = nothing
+	parts = PiecewiseAffine([x0], typeof(y0)[], typeof(y0)[])
+	for x1 in Iterators.drop(interval, 1)
+		y1 = f(x1)
+		s1 = y1 - y0
+		if s1 ≠ s0
+			isnothing(s0) || register!(parts, x0, s0, y0)
+			m = x0
+		end
+		x0, y0, s0 = x1, y1, s1
+	end
+	register!(parts, last(interval), s1, y1)
+	return parts
+end
+	
 # We check that I_d(J) = E_d  (but ⚠ I_d(U) ≠ J ⚠)
 function slopes(f; d=D, N=200)
 	function print_affine(u, v, a, y)
-		println("on interval [$u, $v]: f(n)=$a*n + $(y-a*v) ") # (check: f($v)=$(f(v))=$y")
+		println("on interval [$u, $v]: f(n)=$a*n + $(y-a*v) (e=$(flog(u;d)))") # (check: f($v)=$(f(v))=$y")
 	end
 	interval = 0:N
 	n0 = m = first(interval) # start of current interval
