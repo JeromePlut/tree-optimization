@@ -27,16 +27,17 @@ D=3;
 L=(n,d=D)->if(n<=0, 0, ceil(log(n)/log(d)));
 P=(n,d=D)->if(n <= 1, 0, n+sum(i=0,d-1,P(floor((n+i)/d),d)));
 Q=(n,d=D)->{local(e=L(n,d)); if(n<=2*d^(e-1), (e+1)*n-2*d^(e-1), e*n)};
-R=(n,d=D)->{if(n<=0,return(1/(1-d)));local(e=L(n,d)); -(d^e)/(d-1)+e*(n)};
-G=(f,d=D)->(n)->f(n)-sum(i=0,d-1,f(floor((n+i)/d)));
-F=(g,d=D)->(n)->if(n<=1,[-g(0)/(d-1),'C][1],g(n)+sum(i=0,d-1,F(g,D)(floor((n+i)/d))));
+E=(n,d=D)->{if(n<=0,return(1/(1-d)));local(e=L(n,d)); -(d^e)/(d-1)+e*(n)};
+Dr=(f,d=D)->(n)->f(n)-sum(i=0,d-1,f(floor((n+i)/d)));
+In=(g,d=D)->(n)->if(n<=1,[-g(0)/(d-1),'C][1],g(n)+sum(i=0,d-1,In(g,D)(floor((n+i)/d))));
 \\ G=(f=1,d=D)->(n)->{if(n<=d-1,return(0));
 \\ 	subst(f,'x,n)+sum(i=1,d-1,G(f,d)(floor((n+i)/d)))};
 \\ make_G(f,d=D)=(n)->{ f(n)-sum(i=0,d-1,f(floor((n+i)/d)))};
 \\ log_e=(d=D)->(n)->if(n<=0,0,ceil(log(n)/log(d)));
-clogD=(n,d=D)->if(n<=1,[l0,0][n+1],ceil(log(n)/log(d)))
-flogD=(n,d=D)->if(n<=1,[l0,0][n+1],floor(log(n)/log(d)))
+clogD=(n,d=D)->if(n<=1,[l0,0][n+1],ceil(log(n)/log(d)));
+flogD=(n,d=D)->if(n<=1,[l0,0][n+1],floor(log(n)/log(d)));
 U=(n,d=D)->(n<=1);
+V=(n,d=D)->n-(n==1);
 J=(n,d=D)->n+(n==0);
 \\ G=(d)->(n)->{if(n<=0,return(0));local(e=ceil(log(n)/log(d)));
 \\ 	e*d^e-(d^e-1)/(d-1)+e*(n-d^e)};

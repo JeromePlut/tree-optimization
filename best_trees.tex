@@ -151,6 +151,41 @@ Since $f$~is affine on the interval~$\cro{\frac{a}{d^e},
 to $f\pa{a+b/d}{d^e}$.
 \end{proof}
 
+
+We check that $\ro I_d(J) = E_d$.
+
+\begin{prop}\label{prop:IU}
+Define~$f_d(x) = \frac{d-2}{d-1}-x$ for~$x ≤ 2$
+and~$f_d(x) = \frac{-d}{d-1}$ for~$x ≥ 2$.
+Then, for any integer~$n ≥ 1$, if~$e = \floor{\log_d(n)}$,
+$\ro I_d(J)(n) = d^e f_d(n/d^e)$.
+\end{prop}
+
+
+
+Let~$(d_n)$ be a sequence of integers such that~$d_0 = d_1 = 0$.
+The \emph{regular family of trees} with degrees~$(d_n)$
+is the family of trees~$(T(n))$ with $n$ leaves
+such that, for~$n ≥ 2$,
+$T(n) = \acco{T\pa{\floor{\frac{n+i}{d(n)}}},\, i=0…d(n)-1}$.
+
+\begin{prop}
+Let~$d$ be an integer and define the family of trees~$T_d$
+as the regular family of trees with degree~$\min(n,d)$ for~$n ≥ 2$.
+Then the parent cost of~$T_d(n)$ is
+\begin{align}
+\pcost(T_d(n)) = E_d(n) - f_d(n)
+&= \begin{cases}
+(e+2) n - 2 d^e & \text{for~$n ∈ [d^e, 2 d^e]$,}\\
+(e+1) n & \text{for~$n ∈ [2 d^e, d^{e+1}]$.}
+\end{cases}
+\end{align}
+\end{prop}
+
+\begin{proof}
+We easily check that $\ro D_d(\pcost(T_d)) = J - U$.
+\end{proof}
+
 % \subsubsection{Binary trees $T_2(n)$}
 % 
 % We define the family of \emph{binary trees}~$T_2(n)$ by

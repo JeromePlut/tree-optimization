@@ -818,10 +818,88 @@ module TreeFuncs
 global D = 2
 _parts(n, d) = ((n+i)÷d for i in 0:d-1)
 @inline Dr(f; d=D) = (n->f(n)-sum(f.(_parts(n, d))))
-@inline In(f; d=D) = n-> n ≤ 1 ? f(0)/(1-d) :
-	f(n) + sum(In(f).(_parts(n, d)))
+@inline In(f; d=D) = n-> n ≤ 1 ? f(0)//(1-d) :
+	f(n) + sum(In(f;d).(_parts(n, d)))
 @inline J(n) = n + iszero(n)
 @inline U(n) = (n ≤ 1)
+@inline V(n) = n - isone(n)
+@inline clog(n;d=D)=iszero(n) ? 0 : ceil(Int,log(d,n))
+@inline function E(n; d=D)
+	e = clog(n; d)
+	e*n+d^e//(1-d)
+end
+@inline Ed(d=D)=n->E(n;d)
+"""
+    A description of a recursive tree with a finite number of exceptions.
+    
+ - `degree`: the number of branches in the general case;
+ - `exceptions`: same, for the exceptional cases."""
+struct TreeFunc
+	degree::Int
+	exceptions::Dict{Int,Int}
+	pcost::Vector{Int} # cached values of parent cost
+	scost::Vector{Int} # cached values of sibling cost
+end
+@inline TreeFunc(d, x::Pair{<:Integer,<:Integer}...) =
+	TreeFunc(d, Dict(x...), [], [])
+
+const T2=TreeFunc(2)
+const T23=TreeFunc(2, 3=>3)
+const T3=TreeFunc(3)
+const T4=TreeFunc(4)
+const T5=TreeFunc(5)
+"""    same as `Base.get!`, but resizes `Vector`s if needed.
+Fills with `def` the intermediate entries."""
+function _get!(f::Function, v::Vector, i, def)
+	if i > length(v)
+		n = length(v)
+		resize!(v, i)
+		v[n+1:end].= def
+	end
+	if v[i] == def
+		v[i] = f()
+	end
+	return v[i]
+end
+pcost(f::TreeFunc) = (n->pcost(f, n))
+pcost(f::TreeFunc, n) = _get!(f.pcost, n+1, -1) do
+	(n ≤ 1) && return 0
+	d = get(f.exceptions, n, f.degree)
+	a, b = divrem(n, d)
+	# `d-b` branches of weight `a` and `b` branches of weight `a+1`:
+	c = n + (d-b)*pcost(f, a)
+	(b > 0) && (c+= b*pcost(f, a+1))
+	return c
+end
+function test(d, N=10)
+	t = TreeFunc(d)
+	f = n->pcost(t, n)
+	for n in 0:N
+		println("$n: $(f(n)) E_$d+J=$(E(n;d)+J(n))       dr=$(Dr(f;d)(n)) J-U=$(J(n)-U(n)) ")
+	end
+end
+
+
+# We check that I_d(J) = E_d  (but ⚠ I_d(U) ≠ J ⚠)
+function slopes(f; d=D, N=200)
+	function print_affine(u, v, a, y)
+		println("on interval [$u, $v]: f(n)=$a*n + $(y-a*v) ") # (check: f($v)=$(f(v))=$y")
+	end
+	interval = 0:N
+	n0 = m = first(interval) # start of current interval
+	y1 = y0 = f(n0)
+	s1 = s0 = nothing
+	for n1 in Iterators.drop(interval, 1)
+		y1 = f(n1)
+		s1 = y1 - y0
+		if s1 ≠ s0
+			isnothing(s0) || print_affine(m, n0, s0, y0)
+			m = n0
+		end
+		n0, y0, s0 = n1, y1, s1
+	end
+	print_affine(m, last(interval), s1, y1)
+end
 
 end # module
 
