@@ -4,6 +4,7 @@
 \usepackage[margin=20mm]{geometry}
 \usepackage{math}
 \usepackage{unicode}
+\usepackage{booktabs}
 
 \def\pcost{ν_\mathrm{p}}
 \def\scost{ν_\mathrm{c}}
@@ -18,76 +19,76 @@
 \DeclareMathOperator\Exp{Exp} % Polya exponential
 \begin{document}
 
-% \section{Optimal trees}
-% 
-% \begin{df}
-% Let~$\ro T(n)$ be the set of all non-planar trees
-% with $n$ leaves such that no node has a single child.
-% \end{df}
-% 
-% We use the following syntax for trees: $L$ is the tree with only one
-% leaf, and given trees $t_1, …, t_n$, we write $\treefrom{t_1, …, t_n}$
-% for the tree where $(t_i)$ are the branches of the root node.
-% Note that, since our trees are non-planar, this tree
-% does not depend on the ordering of the trees~$t_i$.
-% 
-% \subsection{Optimal trees}
-% 
-% For any tree~$t ∈ \ro t(n)$, we define
-% \begin{enumerate}
-% \item the \emph{parent cost} of~$t$:
-% $\pcost(L) = 0$, $\pcost(\treefrom{t_1, …, t_k}) = ∑ \pcost(t_i) + n$.
-% \item the \emph{sibling cost} of~$t$:
-% $\scost(L) = 0$, $\scost(\treefrom{t_1, …, t_k}) = ∑ \scost(t_i) + (k-1) n$.
-% \item the \emph{geometric cost} of~$t$
-% as the point~$\gcost(t) = (\pcost(t), \scost(t)) ∈ ℝ^2$.
-% \end{enumerate}
-% In particular, if $t$~is a binary tree
-% then $\scost(L) = \pcost(L)$.
-% 
-% For any tree~$t$,
-% the \emph{cost function} associated to~$t$
-% is the affine map~$f_t: λ ↦ λ \pcost(t) + \scost(t)$.
-% For any set~$T$ of trees,
-% we define~$f_T(λ) = \inf \acco{f_t(λ),\; t ∈ T}$;
-% as an infimum of affine functions, $f_T$ is a concave function.
-% In fact, it is the dual of the convex hull
-% of the set~$\acco{ \gcost(t),\; t ∈ T}$:
-% 
-% \begin{prop}
-% (TODO)
-% \end{prop}
-% 
-% 
-% 
-% 
-% 
-% \subsection{Counting trees}
-% The single-child condition ensures that $\ro T(n)$~is a finite set.
-% Let~$T$ be the generating series
-% $T(z) = ∑ \abs{\ro T(n)}\: z^n$;
-% then $T$~satisfies the functional equation
-% \begin{align}
-% T(z) = x + \Exp(T)(z) - T(z) - 1,
-% \end{align}
-% where $\Exp(T)$ is the Polya exponential, defined by
-% $\Exp(f)(z) = ∑_{n≥0} f(x^n)/n$.
-% 
-% (TODO)
-% 
-% 
-% \subsection{Cost functions for some families of trees}
-% 
-% In this section we study a few given families of trees,
-% parametrized by their number of leaves~$n$;
-% empirically, these are the optimal families for~$λ$ small.
-% While it is possible to check this for small~$n$,
-% the exponential growth of the number of trees
-% (see previous section)
-% prevents this exploration from going beyond, say, $n = 25$.
-% We believe it reasonable to conjecture that
-% these families remain optimal in the given domains
-% among all trees for all values of~$n$.
+\section{Optimal trees}
+
+\begin{df}
+Let~$\ro T(n)$ be the set of all non-planar trees
+with $n$ leaves such that no node has a single child.
+\end{df}
+
+We use the following syntax for trees: $L$ is the tree with only one
+leaf, and given trees $t_1, …, t_n$, we write $\treefrom{t_1, …, t_n}$
+for the tree where $(t_i)$ are the branches of the root node.
+Note that, since our trees are non-planar, this tree
+does not depend on the ordering of the trees~$t_i$.
+
+\subsection{Optimal trees}
+
+For any tree~$t ∈ \ro t(n)$, we define
+\begin{enumerate}
+\item the \emph{parent cost} of~$t$:
+$\pcost(L) = 0$, $\pcost(\treefrom{t_1, …, t_k}) = ∑ \pcost(t_i) + n$.
+\item the \emph{sibling cost} of~$t$:
+$\scost(L) = 0$, $\scost(\treefrom{t_1, …, t_k}) = ∑ \scost(t_i) + (k-1) n$.
+\item the \emph{geometric cost} of~$t$
+as the point~$\gcost(t) = (\pcost(t), \scost(t)) ∈ ℝ^2$.
+\end{enumerate}
+In particular, if $t$~is a binary tree
+then $\scost(L) = \pcost(L)$.
+
+For any tree~$t$,
+the \emph{cost function} associated to~$t$
+is the affine map~$f_t: λ ↦ λ \pcost(t) + \scost(t)$.
+For any set~$T$ of trees,
+we define~$f_T(λ) = \inf \acco{f_t(λ),\; t ∈ T}$;
+as an infimum of affine functions, $f_T$ is a concave function.
+In fact, it is the dual of the convex hull
+of the set~$\acco{ \gcost(t),\; t ∈ T}$:
+
+\begin{prop}
+(TODO)
+\end{prop}
+
+
+
+
+
+\subsection{Counting trees}
+The single-child condition ensures that $\ro T(n)$~is a finite set.
+Let~$T$ be the generating series
+$T(z) = ∑ \abs{\ro T(n)}\: z^n$;
+then $T$~satisfies the functional equation
+\begin{align}
+T(z) = x + \Exp(T)(z) - T(z) - 1,
+\end{align}
+where $\Exp(T)$ is the Polya exponential, defined by
+$\Exp(f)(z) = ∑_{n≥0} f(x^n)/n$.
+
+(TODO)
+
+
+\subsection{Cost functions for some families of trees}
+
+In this section we study a few given families of trees,
+parametrized by their number of leaves~$n$;
+empirically, these are the optimal families for~$λ$ small.
+While it is possible to check this for small~$n$,
+the exponential growth of the number of trees
+(see previous section)
+prevents this exploration from going beyond, say, $n = 25$.
+We believe it reasonable to conjecture that
+these families remain optimal in the given domains
+among all trees for all values of~$n$.
 
 
 \subsubsection{Tree-like integration and derivation}
@@ -95,16 +96,16 @@
 Let~$d ≥ 2$ be an integer.
 For any function~$f: ℕ → ℝ$ we define the
 \emph{tree-like derivative} of~$f$ by
-\begin{align}\ref{eq:def-D}
-\ro D(f)(n) &= f(n) - ∑_{i=0:d-1} f\pa{\ceil{\frac{n+i}{d}}}.
+\begin{align}\label{eq:def-D}
+\ro D(f)(n) &= f(n) - ∑_{i=0:d-1} f\pa{\floor{\frac{n+i}{d}}}.
 \end{align}
 One easily checks that $\ro D(f)(0) =\ro D(f)(1) = (1-d) f(0)$.
 We also define the \emph{tree-like integral}
 of any function~$f$ such that~$f(1) = f(0)$ by
-\begin{align}\ref{eq:def-I}
+\begin{align}\label{eq:def-I}
 \ro I(f)(n) &= \begin{cases}
 \frac{1}{1-d}f(0)  & \text{for~$n = 0$ or~$n = 1$},\\
-\displaystyle f(n) + ∑_{i=0:d-1} \ro I_d(f)\pa{\ceil{\frac{n+i}{d}}}
+\displaystyle f(n) + ∑_{i=0:d-1} \ro I_d(f)\pa{\floor{\frac{n+i}{d}}}
 	& \text{for $n ≥ 2$.}
 \end{cases}
 \end{align}
@@ -125,7 +126,7 @@ the (continuous) piecewise affine function defined on~$[d^e, d^{e+1}]$
 by~$f(x) = e x - \frac{d^e}{d-1}$.
 
 
-\begin{prop}\ref{eq:calcul-I}
+\begin{prop}\label{prop:interpolation}
 Let~$(y_i)$ be a sequence of real numbers
 such that~$y_0 = y_1$ and~$y_i = 0$ for~$i ≥ d^c$.
 Let~$f$ be the unique function interpolating~$(y_i)$
@@ -160,17 +161,19 @@ Then, for any integer~$n ≥ 1$, if~$e = \floor{\log_d(n)}$,
 $\ro I_d(J)(n) = d^e f_d(n/d^e)$.
 \end{prop}
 
-
+\subsubsection{Regular families of trees}
 
 Let~$(d_n)$ be a sequence of integers such that~$d_0 = d_1 = 0$.
 The \emph{regular family of trees} with degrees~$(d_n)$
 is the family of trees~$(T(n))$ with $n$ leaves
 such that, for~$n ≥ 2$,
 $T(n) = \acco{T\pa{\floor{\frac{n+i}{d(n)}}},\, i=0…d(n)-1}$.
+We can compute the parent costs (TODO: and sibling costs)
+of some regular families using Prop.~\ref{prop:interpolation}.
 
 \begin{prop}
 Let~$d$ be an integer and define the family of trees~$T_d$
-as the regular family of trees with degree~$\min(n,d)$ for~$n ≥ 2$.
+as the regular family of trees with degrees~$\min(n,d)$ for~$n ≥ 2$.
 Then the parent cost of~$T_d(n)$ is
 \begin{align}
 \pcost(T_d(n)) = E_d(n) - f_d(n) &= \begin{cases}
@@ -181,18 +184,56 @@ Then the parent cost of~$T_d(n)$ is
 \end{prop}
 
 \begin{proof}
-We easily check that $\ro D_d(\pcost(T_d)) = J - U$.
+We easily check that $\ro D_d(\pcost(T_d)) = J - U$
+and conclude using Prop.~\ref{prop:IU}.
+(we note that the second case is void for~$d = 2$).
 \end{proof}
 
 
 \begin{prop}
 Let~$T_{2,3}$ be the regular family of trees
-with degree $d_2 = 2$, $d_3 = 3$ and~$d_n = 2$ for~$n ≥ 4$. Then:
+with degrees~$d_2 = 2$, $d_3 = 3$ and~$d_n = 2$ for~$n ≥ 4$. Then:
 \begin{align}
 \pcost(T_{2,3}(n)) &= \begin{cases}
-e n & \text{for $n ∈ [2^e, \frac{3}{2} ⋅ 2^e]$,}\\
-(e+4) n - 6 ⋅ 2^e & \text{for $n ∈ [\frac{3}{2}⋅2^e, 2^{e+1}]$.}
-\end{cases}
+e⋅ n & \text{for $n ∈ [2^e, \frac{3}{2} ⋅ 2^e]$,}\\
+(e+4)⋅n - 6 ⋅ 2^e & \text{for $n ∈ [\frac{3}{2}⋅2^e, 2^{e+1}]$.}\end{cases}\\
+\scost(T_{2,3}(n)) &= \begin{cases}
+(e+3)⋅n - 3⋅2^e & \text{for~$n ∈ [2^e, \frac{3}{2}⋅2^e]$,}\\
+(e+1)⋅n & \text{for~$n ∈ [\frac{3}{2}⋅2^e, 2^{e+1}]$.}\end{cases}
+\end{align}
+\end{prop}
+
+\begin{prop}
+Define the following regular families of trees:
+\begin{enumerate}
+\item $T_{3,2}$ with degrees~$d_2 = 2$, $d_4 = 2$ and~$d_n = 3$ otherwise;
+\item $T_3$ with degrees $d_2 = 2$ and $d_n = 3$ otherwise;
+\item $T_{3,4}$ with degrees $d_2 = 2$, $d_4 = 4$ and~$d_n = 3$ otherwise.
+\end{enumerate}
+The following table summarizes the costs of these families:
+\begin{align}
+\begin{array}{lllll}
+\toprule
+\text{for $n$ in:} &
+{}[3^e, 4⋅3^{e-1}] &
+{}[4⋅3^{e-1}, 5⋅3^{e-1}] &
+{}[5⋅3^{e-1}, 2⋅3^e] &
+{}[2⋅3^e, 3^{e+1}]\\
+\midrule
+\pcost(T_{3,2}(n)): & (e+4)⋅n-4⋅3^e & e⋅n-4⋅3^{e-1} &
+ (e+2)⋅n - 2⋅3^e & (e+1)⋅n\\
+\scost(T_{3,2}(n)): & 2e⋅n & 2(e+2)⋅n - 16⋅3^{e-1} &
+ 2(e+1)⋅n - 2⋅3^e & 2(e+2)⋅n - 6⋅3^e \\
+\midrule
+\pcost(T_{3}(n)): & & (e+2)⋅n-2⋅3^e & & (e+1)⋅n \\
+\scost(T_{3}(n)): & & 2(e+1)⋅n-2⋅3^e & & 2(e+2)⋅n-6⋅3^e\\
+\midrule
+\pcost(T_{3,4}(n)): & e⋅n & (e+4)⋅n-16⋅3^{e-1} &
+	(e+2)⋅n-2⋅3^e & (e+1)⋅n \\
+\scost(T_{3,4}(n)): & 2(e+2)⋅n - 4⋅3^e & 2e⋅n + 4⋅3^{e-1} \\
+	2(e+1)⋅n-2⋅3^e & 2(e+2)⋅n - 6⋅3^e \\
+\bottomrule
+\end{array}
 \end{align}
 \end{prop}
 

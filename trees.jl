@@ -601,9 +601,13 @@ end
 using TikZ and TikZ-qtree packages."""
 function tikz(io::IO, t::PostTree, pc=0, sc=0)
 	n = nleaves(t)
-	t.degrees == _vec_t2(n) && print(io, "\$\\mathbf{T_2($n)}\$: ")
-	t.degrees == _vec_t23b(n) && print(io, "\$\\mathbf{T_{23}($n)}\$: ")
-	t.degrees == _vec_t3(n) && print(io, "\$\\mathbf{T_3($n)}\$: ")
+	for (k,v) in _REGULAR_TREES
+		l = regular_tree(v...)(n)
+		t.degrees == l && print(io, "\$\\mathbf{$k($n)}\$: ")
+	end
+#  	t.degrees == _vec_t2(n) && print(io, "\$\\mathbf{T_2($n)}\$: ")
+#  	t.degrees == _vec_t23b(n) && print(io, "\$\\mathbf{T_{23}($n)}\$: ")
+#  	t.degrees == _vec_t3(n) && print(io, "\$\\mathbf{T_3($n)}\$: ")
 	print(io, "\$(", pc, ", ", sc, ")\$:\n\n")
 	print(io, "\\Tree")
 	s = empty_stack(t.degrees)
@@ -719,14 +723,44 @@ end
 @inline graphviz(tree::PostTree, fn...) = graphviz(reduced_graph(tree), fn...)
 @inline graphviz(tree::TreeCost, fn...) = graphviz(tree.tree, fn...)
 
-_vec_t2(n) = isone(n) ? [0] : [_vec_t2((n+1)÷2); _vec_t2(n÷2); 2]
-_vec_t23(n) = isone(n) ? [0] :
-	iszero(n%3) && ispow2(n÷3) ? [_vec_t23(n÷3); _vec_t23(n÷3); _vec_t23(n÷3); 1; 3] :
-	[_vec_t23((n+1)÷2); _vec_t23(n÷2); 2]
-_vec_t3(n) = n ≤ 2 ? _vec_t23(n) :
-	[_vec_t3((n+2)÷3); _vec_t3((n+1)÷3); _vec_t3(n÷3); 1; 3]
-_vec_t23b(n) = n ≤ 2 ? _vec_t2(n) : n == 3 ? [0,0,0,1,3] :
-	[_vec_t23b(n÷2); _vec_t23b((n+1)÷2); 2]
+"""    returns the encoding for the regular tree with degrees n->d(n)."""
+function regular_tree(degrees, n)
+	iszero(n) && return Int[]
+	isone(n) && return [0]
+	d = min(n, degrees(n))
+	a,b = divrem(n, d)
+#  	if n > 5
+#  		t1 = regular_tree(degrees, a+1)
+#  		t2 = regular_tree(degrees, a)
+#  		println("first we put $b times tree($(a+1)): $t2")
+#  		println("then $(d-b) times tree($(a)): $t1")
+#  	end
+	[ b > 0 ? repeat(regular_tree(degrees, a+1), b) : [];
+		repeat(regular_tree(degrees, a), d-b);
+		repeat([1], d-2); d]
+end
+regular_tree(d::Integer, x::Pair{<:Integer,<:Integer}...) = let y = Dict(x)
+	regular_tree(n->get(y, n, d)) end
+regular_tree(degrees) = n->regular_tree(degrees, n)
+const _REGULAR_TREES = (
+ "T_{2}" => (2),
+ "T_{23}" => (2, 3=>3),
+ "T_{3}" => (3),
+ "T_{32}" => (3, 4=>2),
+ "T_{34}" => (3, 4=>4),
+ "T_{4}" => (4),
+)
+#  _vec_t2 = regular_tree(2)
+#  _vec_t2 = regular_tree(_->2)
+#  _vec_t3 = regular_tree(_->3)
+#  _vec_t2(n) = isone(n) ? [0] : [_vec_t2((n+1)÷2); _vec_t2(n÷2); 2]
+#  _vec_t23(n) = isone(n) ? [0] :
+#  	iszero(n%3) && ispow2(n÷3) ? [_vec_t23(n÷3); _vec_t23(n÷3); _vec_t23(n÷3); 1; 3] :
+#  	[_vec_t23((n+1)÷2); _vec_t23(n÷2); 2]
+#  _vec_t3(n) = n ≤ 2 ? _vec_t23(n) :
+#  	[_vec_t3((n+2)÷3); _vec_t3((n+1)÷3); _vec_t3(n÷3); 1; 3]
+#  _vec_t23b(n) = n ≤ 2 ? _vec_t2(n) : n == 3 ? [0,0,0,1,3] :
+#  	[_vec_t23b(n÷2); _vec_t23b((n+1)÷2); 2]
 
 function report(; interval=0:typemax(Int), file="/tmp/trees_report.tex",
 	kwargs...)
@@ -844,15 +878,16 @@ struct RegularTree
 end
 
 @inline RegularTree(d, x::Pair{<:Integer,<:Integer}...) =
-	RegularTree(d, Dict(x...), [], [])
+	RegularTree(d, Dict((n => n for n in 2:d-1 if n ∉ keys(x))..., x...), [], [])
 
 const T2=RegularTree(2)
 const T23=RegularTree(2, 3=>3)
-const T3=RegularTree(3, 2=>2)
+const T3=RegularTree(3)
 const T32=RegularTree(3, 2=>2, 4=>2)
 const T34=RegularTree(3, 2=>2, 4=>4)
 const T4=RegularTree(4)
 const T5=RegularTree(5)
+T=d->RegularTree(d)
 """    same as `Base.get!`, but resizes `Vector`s if needed.
 Fills with `def` the intermediate entries."""
 function _get!(f::Function, v::Vector, i, def)
@@ -865,6 +900,16 @@ function _get!(f::Function, v::Vector, i, def)
 		v[i] = f()
 	end
 	return v[i]
+end
+pcost(t::RegularTree) = (n->pcost(t, n))
+pcost(t::RegularTree, n) = _get!(t.pcost, n+1, -1) do
+	(n ≤ 1) && return 0
+	d = get(t.exceptions, n, t.degree)
+	a, b = divrem(n, d)
+	# `d-b` branches of weight `a` and `b` branches of weight `a+1`:
+	c = n + (d-b)*pcost(t, a)
+	(b > 0) && (c+= b*pcost(t, a+1))
+	return c
 end
 """    Returns a symbolic description of parent cost for these trees."""
 function parent_cost(t::RegularTree)
@@ -892,22 +937,51 @@ function parent_cost(t::RegularTree)
 		println("on interval [$z0, $z1]: y = $s*x $t")
 	end
 end
-pcost(t::RegularTree) = (n->pcost(t, n))
-pcost(t::RegularTree, n) = _get!(t.pcost, n+1, -1) do
+scost(t::RegularTree) = (n->scost(t, n))
+scost(t::RegularTree, n) = _get!(t.scost, n+1, -1) do
 	(n ≤ 1) && return 0
 	d = get(t.exceptions, n, t.degree)
 	a, b = divrem(n, d)
 	# `d-b` branches of weight `a` and `b` branches of weight `a+1`:
-	c = n + (d-b)*pcost(t, a)
-	(b > 0) && (c+= b*pcost(t, a+1))
+	c = n*(d-1) + (d-b)*scost(t, a)
+	(b > 0) && (c+= b*scost(t, a+1))
 	return c
+end
+
+"""    Returns a symbolic description of parent cost for these trees."""
+function sibling_cost(t::RegularTree)
+	d = t.degree
+	c = flog(maximum(keys(t.exceptions); init=d); d)
+	# let c(n) be the parent cost: we know that
+	# on each interval [d^e, d^(e+1)], c(n) = E(n) + (piecewise affine)
+	#  = e n + 1/(1-d) + (piecewise affine),
+  # where the affine parts depend on n/d^e:
+  #  slope a = function of (n/d^e)
+  #  origin b = d^e * function of (n/d^e)
+	parts = affine_parts(scost(t), d^c:d^(c+1))
+	for (x0, x1, a, b) ∈ parts # relative to d^c:
+		w0, w1 = (x0, x1).// d^c
+		z0 = isone(w0) ? "$d^e" :
+			@sprintf("%s*%d^e", isone(denominator(w0)) ? numerator(w0) : w0, d)
+		z1 = (w1 == d) ? "$d^(e+1)" :
+			@sprintf("%s*%d^e", isone(denominator(w1)) ? numerator(w1) : w1, d)
+		# we see f(x) = ax+b = (d-1) E_d(x) + α x + d^c β
+		#   = ((d-1)c+1+α) x + d^c(β-1)
+		u = a-(d-1)*c
+		v = b//d^c
+		k = (d == 2) ? "" : @sprintf("%s*", d-1)
+		s = iszero(u) ? "$(k)e" : @sprintf("(%se%+d)", k, u)
+		t = iszero(v) ? "" :
+			@sprintf("%+s*%d^e", isone(denominator(v)) ? numerator(v) : v, d)
+		println("on interval [$z0, $z1]: y = $s*x $t")
+	end
 end
 function test(d, N=10)
 	t = RegularTree(d)
-	f = n->pcost(t, n)
-	for n in 0:N
-		println("$n: $(f(n)) E_$d+J=$(E(n;d)+J(n))       dr=$(Dr(f;d)(n)) J-U=$(J(n)-U(n)) ")
-	end
+	f = n->scost(t, n)
+	println(scost(t).(0:N))
+	println(Dr(scost(t);d).(0:N)-(d-1)*J.(0:N))
+	println(Int.(scost(t).(0:N)-(d-1)*In(J;d).(0:N)))
 end
 
 """    A piecewise function, of the form `y ↦ a_i * x + b_i`
