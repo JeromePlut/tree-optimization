@@ -5,7 +5,22 @@
 \usepackage{math}
 \usepackage{unicode}
 \usepackage{booktabs}
-
+\usepackage{newunicodechar}
+\usepackage{bbm}
+\newunicodechar{𝟙}{\mathbbm{1}}
+\makeatletter
+\let\listORI\list
+\def\FB@listsettings{%
+      \setlength{\itemsep}{0.4ex plus 0.2ex minus 0.2ex}%
+      \setlength{\parsep}{0.4ex plus 0.2ex minus 0.2ex}%
+      \setlength{\topsep}{0.8ex plus 0.4ex minus 0.4ex}%
+      \setlength{\partopsep}{0.4ex plus 0.2ex minus 0.2ex}%
+      \@tempdima=\parskip
+      \addtolength{\topsep}{-\@tempdima}%
+      \addtolength{\partopsep}{\@tempdima}}%
+\def\list#1#2{\listORI{#1}{\FB@listsettings #2}}%
+\makeatother
+      
 \def\pcost{ν_\mathrm{p}}
 \def\scost{ν_\mathrm{c}}
 \def\treefrom#1{\left\{#1\right\}}
@@ -34,7 +49,7 @@ does not depend on the ordering of the trees~$t_i$.
 
 \subsection{Optimal trees}
 
-For any tree~$t ∈ \ro t(n)$, we define
+For any tree~$t ∈ \ro T(n)$, we define
 \begin{enumerate}
 \item the \emph{parent cost} of~$t$:
 $\pcost(L) = 0$, $\pcost(\treefrom{t_1, …, t_k}) = ∑ \pcost(t_i) + n$.
@@ -55,18 +70,22 @@ as an infimum of affine functions, $f_T$ is a concave function.
 In fact, it is the dual of the convex hull
 of the set~$\acco{ \gcost(t),\; t ∈ T}$:
 
-\begin{prop}
-(TODO)
+\begin{prop}\label{prop:convex}
+Let~$(t_i)$ be the set of points on the lower-left convex hull of
+$G = \acco{\gcost(t),\: t ∈ T}$,
+\emph{i.e.} those points~$t$ such that $G$ intersects non-trivially
+the upper-right quadrant originated at~$t$.
+Assume that $(t_i) = (t_1, …, t_n)$ is finite
+and that they are sorted by decreasing value of~$\pcost(t_i)$;
+define $λ_i = \frac{\scost(t_{i+1})-\scost(t_i)}{\pcost(t_{i+1})-\pcost(t_i)}$.
+Then, for any~$τ ∈ [λ_{i-1}, λ_i]$, $f_T(τ) = f_{t_i}(τ)$;
+that is, the tree~$t_i$ minimizes $f_{t}(τ)$ for all~$t ∈ T$.
 \end{prop}
 
 
-
-
-
 \subsection{Counting trees}
-The single-child condition ensures that $\ro T(n)$~is a finite set.
-Let~$T$ be the generating series
-$T(z) = ∑ \abs{\ro T(n)}\: z^n$;
+The single-child condition ensures that $\ro T(n)$~is a finite set for any~$n$.
+Let~$T$ be the generating series $T(z) = ∑ \abs{\ro T(n)}\: z^n$;
 then $T$~satisfies the functional equation
 \begin{align}
 T(z) = x + \Exp(T)(z) - T(z) - 1,
@@ -93,73 +112,124 @@ among all trees for all values of~$n$.
 
 \subsubsection{Tree-like integration and derivation}
 
+We now introduce a tool which will enable us to
+systematically compute the parent and sibling costs
+for some infinite families of trees.
+The main result is Prop.~\ref{prop:interpolation},
+which allows the computation of tree-like integrals
+of finite sequences of integers.
+
+
 Let~$d ≥ 2$ be an integer.
 For any function~$f: ℕ → ℝ$ we define the
 \emph{tree-like derivative} of~$f$ by
 \begin{align}\label{eq:def-D}
-\ro D(f)(n) &= f(n) - ∑_{i=0:d-1} f\pa{\floor{\frac{n+i}{d}}}.
+\go D(f)(n) &= f(n) - ∑_{i=0:d-1} f\pa{\floor{\frac{n+i}{d}}}.
 \end{align}
-One easily checks that $\ro D(f)(0) =\ro D(f)(1) = (1-d) f(0)$.
+One easily checks that $\go D(f)(0) =\go D(f)(1) = (1-d) f(0)$.
 We also define the \emph{tree-like integral}
 of any function~$f$ such that~$f(1) = f(0)$ by
 \begin{align}\label{eq:def-I}
-\ro I(f)(n) &= \begin{cases}
+\go I(f)(n) &= \begin{cases}
 \frac{1}{1-d}f(0)  & \text{for~$n = 0$ or~$n = 1$},\\
-\displaystyle f(n) + ∑_{i=0:d-1} \ro I_d(f)\pa{\floor{\frac{n+i}{d}}}
+\displaystyle f(n) + ∑_{i=0:d-1} \go I_d(f)\pa{\floor{\frac{n+i}{d}}}
 	& \text{for $n ≥ 2$.}
 \end{cases}
 \end{align}
+% (The condition~$f(1) = f(0)$ is necessary for
+% the definition of~$\go I(f)(1)$ to make sense).
 When the degree~$d$ is not obvious we shall write it as a subscript,
-thus $\ro D_d$, $\ro I_d$.
+thus $\go D_d$, $\go I_d$.
 
-The operator~$\ro I$ is a right inverse of~$\ro D$;
-that is, $\ro D ∘ \ro I$ is the identity
+
+The operator~$\go I$ is a right inverse of~$\go D$;
+that is, $\go D ∘ \go I$ is the identity
 on functions such that~$f(0) = f(1)$.
-In fact, $\ro D$ and~$\ro I$ are inverse bijections
-on the space of such functions.
+In fact, $\go D$ and~$\go I$ are inverse linear automorphisms of this space.
 
-Moreover, one easily checks the following equalities:
-$\ro D(n↦1) = 1-d$; $\ro D(n→n) = 0$;
-$\ro I(J)$, where $J(0) = 1$ and~$J(n) = n$ for~$n ≥ 1$,
-is (the restriction to the integers of)
-the (continuous) piecewise affine function defined on~$[d^e, d^{e+1}]$
-by~$f(x) = e x - \frac{d^e}{d-1}$.
+% We also define the following sequences:
+% $𝟙(n) = 1$; $J(n) = 1$ for~$n = 0$ and~$n$ for~$n ≥ 1$;
+% $U(n) = 1$ for~$n ≤ 1$ and~$0$ for~$n ≥ 2$;
+% $E_d(n) = e ⋅ n - \frac{d^e}{d-1}$ for~$n ∈ [d^e, d^{e+1}]$
+% and~$E_d(0) = E_d(1) = \frac{1}{1-d}$.
+% Then one easily checks the following relations:
+% \begin{align}
+% \go D(𝟙) = \go I(𝟙) = (1-d)⋅𝟙; \qquad
+% % \go D(J) = -U; \qquad
+% \go I(J) = E_d.
+% \end{align}
 
+
+\medbreak
+
+We now introduce the notation for affine interpolation
+as it will be used in Prop.~\ref{prop:interpolation}.
+For~$x ∈ ℝ$, let~$Λ(x) = \frac 12 \abs{x-1} + \frac 12 \abs{x+1} -
+\abs{x}$; then $Λ$ is continuous, piecewise affine,
+and~$Λ(0) = 1$ while~$Λ(n) = 0$ for~$n ∈ ℤ⧵ \acco{0}$.
+For any sequence~$(y_i)$ of integers,
+we define the function~$\widehat{y}(x) = ∑ y_i Λ(x-i)$;
+this function is also continuous, piecewise affine,
+and interpolates~$(y_i)$.
 
 \begin{prop}\label{prop:interpolation}
-Let~$(y_i)$ be a sequence of real numbers
-such that~$y_0 = y_1$ and~$y_i = 0$ for~$i ≥ d^c$.
-Let~$f$ be the unique function interpolating~$(y_i)$
-which is affine on each interval~$[i, i+1]$,
-with the additional condition that~$f(d^c) = d f(d^{c-1})$.
-Then, for any integer~$n ∈ [d^{c+e}, d^{c+e+1}]$,
-$\ro I(y)(n) = d^e f(n/d^e)$.
+Let~$(y_i)$ be a sequence of real numbers such that~$y_0 = y_1$
+and let~$(z_i) = \go D(y)$;
+assume there exists an integer~$c$ such that~$z_i = 0$ for~$i ≥ d^c$.
+Let~$\widehat{y}$ be the piecewise affine function
+interpolating the values~$(y_{d^{c-1}}, …, y_{d^{c}-1},
+y_{d^c} = d y_{d^{c-1}})$.
+Then, for any integers~$e$ and~$n ∈ [d^{c+e}\!,\: d^{c+e+1}]$:
+\begin{align}
+y_n &= n^e\, \widehat{y}\pa{n/d^e}.
+\end{align}
+% Let~$(y_i)$ be a sequence of real numbers
+% such that~$y_0 = y_1$ and~$y_i = 0$ for~$i ≥ d^c$.
+% Let~$f$ be the unique function interpolating~$(y_i)$
+% which is affine on each interval~$[i, i+1]$,
+% with the additional condition that~$f(d^c) = d f(d^{c-1})$.
+% Then, for any integer~$n ∈ [d^{c+e}, d^{c+e+1}]$,
+% $\go I(y)(n) = d^e f(n/d^e)$.
 \end{prop}
 
 \begin{proof}
-We prove this by induction on~$e$; the case~$e = 0$ is obvious.
+We first note that~$z_{d^{c}} = 0$ implies~$y_{d^c} = d y_{d^{c-1}}$.
+We prove the result by induction on~$e$; the case~$e = 0$ is obvious.
 Let~$n ∈ [d^{c+e+1}, d^{c+e+2}]$
 and write~$n = a d + b$ be the Euclidan division of~$n$ by~$d$;
-then, by definition,
+then the relation~$z_{n} = 0$ implies
 \begin{align}
-\ro I(y)(n) &= y(n) + ∑ \ro I(y)\pa{\floor{\frac{y+i}{d}}}\\
-&= 0 + (d-b) \ro I(y)(a) + b \ro I(y)(a+1)\\
-&= d^e \pa{(d-b) f\pa{\frac{a}{d^e}} + b f\pa{\frac{a+1}{d^e}}}.
+y_n &= ∑ y_{\floor{\frac{n+i}{d}}}\\
+ &= (d-b) y_{a} + b y_{a+1}\\
+ &= d^e \pa{(d-b) \widehat{y}(a/d^e) \,+\, b \widehat{y}((a+1)/d^e)}.
+% \go I(y)(n) &= y(n) + ∑ \go I(y)\pa{\floor{\frac{y+i}{d}}}\\
+% &= 0 + (d-b) \go I(y)(a) + b \go I(y)(a+1)\\
+% &= d^e \pa{(d-b) f\pa{\frac{a}{d^e}} + b f\pa{\frac{a+1}{d^e}}}.
 \end{align}
-Since $f$~is affine on the interval~$\cro{\frac{a}{d^e},
-\frac{a+1}{d^e}}$, the last value is also equal
-to $f\pa{a+b/d}{d^e}$.
+Since $\widehat{y}$~is affine on
+the interval~$\cro{\frac{a}{d^e}, \frac{a+1}{d^e}}$,
+the last value is also equal to $\widehat{y}\pa{a+b/d}{d^e}$.
 \end{proof}
 
 
-We check that $\ro I_d(J) = E_d$.
-
-\begin{prop}\label{prop:IU}
-Define~$f_d(x) = \frac{d-2}{d-1}-x$ for~$x ≤ 2$
-and~$f_d(x) = \frac{-d}{d-1}$ for~$x ≥ 2$.
-Then, for any integer~$n ≥ 1$, if~$e = \floor{\log_d(n)}$,
-$\ro I_d(J)(n) = d^e f_d(n/d^e)$.
+\begin{prop}
+Define the functions~$J(n) = \max(n, 1)$
+and, for any~$n ∈ [d^e, d^{e+1}]$, $E_d(n) = (e+1)⋅n - \frac{d^{e+1}}{d-1}$.
+Then
+\begin{align}
+\go I_d(J) = E_d.
+\end{align}
 \end{prop}
+% $E_d(n) = e ⋅ n - \frac{d^e}{d-1}$ for~$n ∈ [d^e, d^{e+1}]$
+% and~$E_d(0) = E_d(1) = \frac{1}{1-d}$.
+% We check that $\go I_d(J) = E_d$.
+
+% \begin{prop}\label{prop:IU}
+% Define~$f_d(x) = \frac{d-2}{d-1}-x$ for~$x ≤ 2$
+% and~$f_d(x) = \frac{-d}{d-1}$ for~$x ≥ 2$.
+% Then, for any integer~$n ≥ 1$, if~$e = \floor{\log_d(n)}$,
+% $\go I_d(J)(n) = d^e f_d(n/d^e)$.
+% \end{prop}
 
 \subsubsection{Regular families of trees}
 
@@ -168,27 +238,42 @@ The \emph{regular family of trees} with degrees~$(d_n)$
 is the family of trees~$(T(n))$ with $n$ leaves
 such that, for~$n ≥ 2$,
 $T(n) = \acco{T\pa{\floor{\frac{n+i}{d(n)}}},\, i=0…d(n)-1}$.
-We can compute the parent costs (TODO: and sibling costs)
+We can compute the parent costs and sibling costs
 of some regular families using Prop.~\ref{prop:interpolation}.
 
 \begin{prop}
 Let~$d$ be an integer and define the family of trees~$T_d$
 as the regular family of trees with degrees~$\min(n,d)$ for~$n ≥ 2$.
-Then the parent cost of~$T_d(n)$ is
+Then the parent cost and sibling cost of~$T_d(n)$ are
 \begin{align}
-\pcost(T_d(n)) = E_d(n) - f_d(n) &= \begin{cases}
+\pcost(T_d(n)) &= E_d(n) - f_d(n) = \begin{cases}
 (e+2) n - 2 d^e & \text{for~$n ∈ [d^e, 2 d^e]$,}\\
 (e+1) n & \text{for~$n ∈ [2 d^e, d^{e+1}]$.}
-\end{cases}
+\end{cases}\\
+\scost(T_d(n)) &= ((d-1)e + 2b)⋅n - b(b+1)⋅d^e
+\quad \text{for $n ∈ [b⋅d^e, (b+1)⋅d^e]$, $b ∈ \acco{1, …, d-1}$.}
 \end{align}
 \end{prop}
 
 \begin{proof}
-We easily check that $\ro D_d(\pcost(T_d)) = J - U$
-and conclude using Prop.~\ref{prop:IU}.
-(we note that the second case is void for~$d = 2$).
+Let~$u = \pcost(T_d) - E_d$.
+Then we check that $\go D_d(u)(n) = 0$ for any~$n ≥ d$.
+Thus, by Prop.~\ref{prop:interpolation}, for any~$n ∈ [d^e, d^{e+1}]$,
+$u(n) = d^e \widehat{u}(n/d^e)$
+where~$\widehat{u}$ is the affine interpolation of~$u$ on~$\acco{1,…,d}$.
+then, by Prop.~\ref{prop:interpolation},
+It now suffices to check that $\widehat{u}(x) = \frac{d-2}{d-1} - x$
+for~$x ∈ [1,2]$ and~$-\frac{d}{d-1}$ for~$x ∈ [2,d]$.
+
+The computation of~$\scost(T_d)$ uses the same reasoning.
+Let~$v = \scost(T_d) - (d-1) E_d$; then $\go D_d(v) = 0$ for~$n ≥ d$.
+For~$n ∈ \acco{1,…,d}$, we find $v_n = n(n-1) - (d-1)E_d(n) = n^2 -d n + d$,
+so that, for~$x ∈ [b,b+1]$, $\widehat{v}(x) = (2b-d+1) x + (d-b^2-b)$.
 \end{proof}
 
+Using the same process (which can easily be automated),
+we can compute the parent and sibling costs
+for some explicitly defined regular families of trees.
 
 \begin{prop}
 Let~$T_{2,3}$ be the regular family of trees
@@ -222,16 +307,16 @@ The following table summarizes the costs of these families:
 \midrule
 \pcost(T_{3,2}(n)): & (e+4)⋅n-4⋅3^e & e⋅n-4⋅3^{e-1} &
  (e+2)⋅n - 2⋅3^e & (e+1)⋅n\\
-\scost(T_{3,2}(n)): & 2e⋅n & 2(e+2)⋅n - 16⋅3^{e-1} &
- 2(e+1)⋅n - 2⋅3^e & 2(e+2)⋅n - 6⋅3^e \\
+\scost(T_{3,2}(n)): & 2e⋅n & (2e+4)⋅n - 16⋅3^{e-1} &
+ (2e+2)⋅n - 2⋅3^e & (2e+4)⋅n - 6⋅3^e \\
 \midrule
 \pcost(T_{3}(n)): & & (e+2)⋅n-2⋅3^e & & (e+1)⋅n \\
-\scost(T_{3}(n)): & & 2(e+1)⋅n-2⋅3^e & & 2(e+2)⋅n-6⋅3^e\\
+\scost(T_{3}(n)): & & (2e+2)⋅n-2⋅3^e & & (2e+4)⋅n-6⋅3^e\\
 \midrule
 \pcost(T_{3,4}(n)): & e⋅n & (e+4)⋅n-16⋅3^{e-1} &
 	(e+2)⋅n-2⋅3^e & (e+1)⋅n \\
-\scost(T_{3,4}(n)): & 2(e+2)⋅n - 4⋅3^e & 2e⋅n + 4⋅3^{e-1} \\
-	2(e+1)⋅n-2⋅3^e & 2(e+2)⋅n - 6⋅3^e \\
+\scost(T_{3,4}(n)): & (2e+4)⋅n - 4⋅3^e & 2e⋅n + 4⋅3^{e-1} &
+	(2e+2)⋅n-2⋅3^e & (2e+4)⋅n - 6⋅3^e \\
 \bottomrule
 \end{array}
 \end{align}
@@ -254,7 +339,7 @@ The following table summarizes the costs of these families:
 % $\scost(T_2(n)) = \pcost(T_2(n))$.
 % 
 % On the other hand, using the notations from~(\ref{eq:def-D}),
-% we see that $\ro D(\pcost(T_2) - J)$ is $
+% we see that $\go D(\pcost(T_2) - J)$ is $
 % 
 % 
 % We prove the result for~$\pcost(T_2(n))$ by induction.
