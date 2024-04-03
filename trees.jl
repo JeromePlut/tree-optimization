@@ -887,6 +887,8 @@ const T32=RegularTree(3, 2=>2, 4=>2)
 const T34=RegularTree(3, 2=>2, 4=>4)
 const T4=RegularTree(4)
 const T5=RegularTree(5)
+const T6=RegularTree(6)
+const T7=RegularTree(7)
 T=d->RegularTree(d)
 """    same as `Base.get!`, but resizes `Vector`s if needed.
 Fills with `def` the intermediate entries."""
@@ -980,8 +982,10 @@ function test(d, N=10)
 	t = RegularTree(d)
 	f = n->scost(t, n)
 	println(scost(t).(0:N))
-	println(Dr(scost(t);d).(0:N)-(d-1)*J.(0:N))
-	println(Int.(scost(t).(0:N)-(d-1)*In(J;d).(0:N)))
+	slopes(n->scost(t,n)-(d-1)*In(J;d)(n))
+# 	println(Dr(scost(t);d).(0:N)-(d-1)*J.(0:N))
+# 	println([-n*(d-n) for n in 0:N])
+# 	println(Int.(scost(t).(0:N)-(d-1)*In(J;d).(0:N)))
 end
 
 """    A piecewise function, of the form `y ↦ a_i * x + b_i`
