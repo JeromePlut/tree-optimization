@@ -1,0 +1,64 @@
+# Couleurs ANSSI
+bleu3 = "#01426a"
+bleu4 = "#002b49"
+rouge4= "#da291c"
+gris2 = "#9ea2a2"
+bleu2 = "#a2b2c8"
+bleu1 = "#b9d9eb"
+gris1 = "#d9e1e2"
+mauve3= "#72246c"
+rouge3= "#e03e52"
+vert2 = "#00b2a9"
+mauve2= "#a73a64"
+rouge2= "#dc8699"
+vert3 = "#007681"
+mauve1= "#d5c2d8"
+rouge1= "#f5dadf"
+
+set style line 1 lw 3 lc rgb bleu2
+set style line 2 lw 3 lc rgb mauve2
+set style line 3 lw 3 lc rgb rouge2
+
+spacer = "   "
+set xrange [0:1]
+set yrange [0:3]
+set xtics (0, "1/3" 1./3, "1/2" .5, "2/3" 2./3, 1) nomirror
+set ytics (0, spacer .1, "1/2" .5, 1, 2) nomirror
+set border 3
+bound(x,a,b)=(x>=a && x<= b) ? 1 : 1/0
+min(x,y) = x < y ? x : y
+max(x,y) = x > y ? x : y
+e = .01 # offset of separator lines
+e2 = .05
+
+f1(x)=x/(1-x)
+f2(x)=(1-x)/x
+set samples 1000
+unset key
+
+set terminal cairolatex pdf
+set out "plot.tex"
+
+set label "T_2" at .4, .4
+set label "T_3" at .35, 1
+set label "T_4" at .4, 2
+
+plot \
+	'+' using 1:(bound($1,1./2,1)*0):(1) \
+	w filledcurves closed fs pattern 4 lc rgb bleu1, \
+	'+' using 1:(bound($1,0,1./3)*f1($1)):(f2($1)) \
+	w filledcurves closed fs pattern 1 lc rgb mauve1, \
+	'+' using 1:(bound($1,1./2,1)*1):(3) \
+	w filledcurves closed fs pattern 5 lc rgb rouge1, \
+	'+' using 1:(min(f1($1),1)-e2):(min(f1($1),1)) \
+	w filledcurves closed fs solid 1.0 lc rgb bleu1, \
+	'+' using 1:(bound($1,0,.5)*f1($1)):(min(f1($1)+e2,f2($1))) \
+	w filledcurves closed fs solid 1.0 lc rgb mauve1, \
+	'+' using 1:(bound($1,0,.5)*max(f1($1),f2($1+.3*e2))):(f2($1)) \
+	w filledcurves closed fs solid 1.0 lc rgb mauve1, \
+	'+' using 1:(bound($1,0,.5)*f2($1)):(f2($1-.3*e2)) \
+	w filledcurves closed fs solid 1.0 lc rgb rouge1, \
+	'+' using 1:(bound($1,.5,1)):(bound($1,.5,1)*(1+e2)) \
+	w filledcurves closed fs solid 1.0 lc rgb rouge1, \
+	bound(x,0,0.5) ls 0 lw 2, bound(x,.5,1)*f1(x) ls 0 lw 2,\
+	bound(x,.5,1)*f2(x) ls 0 lw 2
