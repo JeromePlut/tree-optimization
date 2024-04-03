@@ -36,12 +36,13 @@ f2(x)=(1-x)/x
 set samples 1000
 unset key
 
-set terminal cairolatex pdf
-set out "plot.tex"
+set fontpath "/usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm:/home/user/.fonts"
+# set terminal pdfcairo enhanced; set output "plot.pdf"
+set terminal pngcairo enhanced font "CMU"; set output "plot.png"
 
-set label "T_2" at .4, .4
-set label "T_3" at .35, 1
-set label "T_4" at .4, 2
+set label "T_2" at .45, .4 textcolor rgb bleu3
+set label "T_3" at .35, 1.1 textcolor rgb mauve3
+set label "T_4" at .4, 2 textcolor rgb rouge3
 
 plot \
 	'+' using 1:(bound($1,1./2,1)*0):(1) \
@@ -60,5 +61,5 @@ plot \
 	w filledcurves closed fs solid 1.0 lc rgb rouge1, \
 	'+' using 1:(bound($1,.5,1)):(bound($1,.5,1)*(1+e2)) \
 	w filledcurves closed fs solid 1.0 lc rgb rouge1, \
-	bound(x,0,0.5) ls 0 lw 2, bound(x,.5,1)*f1(x) ls 0 lw 2,\
-	bound(x,.5,1)*f2(x) ls 0 lw 2
+	bound(x,0,1) ls 0 lw 2, bound(x,0,1)*f1(x) ls 0 lw 2,\
+	bound(x,0,1)*f2(x) ls 0 lw 2
