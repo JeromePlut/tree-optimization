@@ -35,15 +35,16 @@ e2 = .05
 f1(x)=x/(1-x)
 f2(x)=(1-x)/x
 
-set terminal pngcairo transparent truecolor enhanced font "CMU"; set output "plot.png"
+set terminal pngcairo truecolor enhanced font "CMU"; set output "plot.png"
 set multiplot
 N=500
+# N=30
 set samples N
 set isosamples N,N
 set view map; unset surface; unset contour
 set view map
 set xyplane at 0
-set view 0,0,1.75
+set view 0,0,1.542
 # set view 0,0,1.87521
 set pm3d
 unset colorbox; unset title; unset border; unset key
@@ -53,10 +54,11 @@ set zrange [0:3]
 # set cbrange [0:3]
 # set zrange [0:3]
 eps=.05
-set palette defined (0 "white", \
-	0 bleu1 , 0+eps "white", 1 "white", \
-	1 rouge1, 1+eps "white", 2 "white", \
-	2 mauve1, 2+eps "white", 3 "white")
+bg = "white"
+set palette defined (0 bg, \
+	0 bleu1 , 0+eps bg, 1 bg, \
+	1 rouge1, 1+eps bg, 2 bg, \
+	2 mauve1, 2+eps bg, 3 bg)
 
 z1(x,y) = (1-y)*.6
 z2(x,y) = (y-x-x*y)/((y+1)**2+(x-1)**2)**.2
@@ -72,7 +74,11 @@ splot [0:1] [0:3] H(cl1(z1(x,y)),cl1(z2(x,y)),cl1(z3(x,y))) w pm3d
 # kludge to align both graphs:
 # set style fill transparent pattern
 # set origin .001,.035; set size 1,.96
-set origin -.000,.05; set size 1,.93
+set origin 0,.055; set size .95,.879
+# set origin -.15,.02; set size 1,.93
+set xtics (0, "1/3" 1./3, "1/2" .5, "2/3" 2./3, 1) nomirror out
+set ytics (0, spacer .1, "1/2" .5, 1, 2) nomirror out
+set border 3
 plot \
 	'+' using 1:(bound($1,1./2,1)*0):(1) \
 	w filledcurves closed fs transparent pattern 4 lc rgb bleu1, \
