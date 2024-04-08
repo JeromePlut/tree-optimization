@@ -22,44 +22,109 @@ set style line 3 lw 3 lc rgb rouge2
 spacer = "   "
 set xrange [0:1]
 set yrange [0:3]
-set xtics (0, "1/3" 1./3, "1/2" .5, "2/3" 2./3, 1) nomirror
-set ytics (0, spacer .1, "1/2" .5, 1, 2) nomirror
+# set xtics (0, "1/3" 1./3, "1/2" .5, "2/3" 2./3, 1) nomirror
+# set ytics (0, spacer .1, "1/2" .5, 1, 2) nomirror
 set border 3
 bound(x,a,b)=(x>=a && x<= b) ? 1 : 1/0
 min(x,y) = x < y ? x : y
 max(x,y) = x > y ? x : y
+clamp(x,a,b) = min(b,max(a,x))
 e = .01 # offset of separator lines
 e2 = .05
 
 f1(x)=x/(1-x)
 f2(x)=(1-x)/x
-set samples 1000
-unset key
 
-set fontpath "/usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm:/home/user/.fonts"
-# set terminal pdfcairo enhanced; set output "plot.pdf"
-set terminal pngcairo enhanced font "CMU"; set output "plot.png"
+set terminal pngcairo transparent truecolor enhanced font "CMU"; set output "plot.png"
+set multiplot
+N=500
+set samples N
+set isosamples N,N
+set view map; unset surface; unset contour
+set view map
+set xyplane at 0
+set view 0,0,1.75
+# set view 0,0,1.87521
+set pm3d
+unset colorbox; unset title; unset border; unset key
+unset xtics; unset ytics; unset ztics
+set cbrange [0:3]
+set zrange [0:3]
+# set cbrange [0:3]
+# set zrange [0:3]
+eps=.05
+set palette defined (0 "white", \
+	0 bleu1 , 0+eps "white", 1 "white", \
+	1 rouge1, 1+eps "white", 2 "white", \
+	2 mauve1, 2+eps "white", 3 "white")
 
-set label "T_2" at .45, .4 textcolor rgb bleu3
-set label "T_3" at .35, 1.1 textcolor rgb mauve3
-set label "T_4" at .4, 2 textcolor rgb rouge3
+z1(x,y) = (1-y)*.6
+z2(x,y) = (y-x-x*y)/((y+1)**2+(x-1)**2)**.2
+z3(x,y) = (x*y+x-1)/((y+1)**2+x**2)**.2
+# g1 = min(z1,-z2)
+cl1(x) = clamp(x,-1,1)
+H(y1,y2,y3)=y1>=0 ? \
+	(y2>=0? 2+y2 : y3>=0 ? y1 : -y2) : \
+	(y2<=0? 1-y1 : y3<=0 ? 2-y3 : 1+y3)
+splot [0:1] [0:3] H(cl1(z1(x,y)),cl1(z2(x,y)),cl1(z3(x,y))) w pm3d
+# splot [0:1] [0:3] cl1(min(x*(1-x),y*(3-y))) w pm3d
 
+# kludge to align both graphs:
+# set style fill transparent pattern
+# set origin .001,.035; set size 1,.96
+set origin -.000,.05; set size 1,.93
 plot \
 	'+' using 1:(bound($1,1./2,1)*0):(1) \
-	w filledcurves closed fs pattern 4 lc rgb bleu1, \
+	w filledcurves closed fs transparent pattern 4 lc rgb bleu1, \
 	'+' using 1:(bound($1,0,1./3)*f1($1)):(f2($1)) \
-	w filledcurves closed fs pattern 1 lc rgb mauve1, \
+	w filledcurves closed fs transparent pattern 1 lc rgb mauve1, \
 	'+' using 1:(bound($1,1./2,1)*1):(3) \
-	w filledcurves closed fs pattern 5 lc rgb rouge1, \
-	'+' using 1:(min(f1($1),1)-e2):(min(f1($1),1)) \
-	w filledcurves closed fs solid 1.0 lc rgb bleu1, \
-	'+' using 1:(bound($1,0,.5)*f1($1)):(min(f1($1)+e2,f2($1))) \
-	w filledcurves closed fs solid 1.0 lc rgb mauve1, \
-	'+' using 1:(bound($1,0,.5)*max(f1($1),f2($1+.3*e2))):(f2($1)) \
-	w filledcurves closed fs solid 1.0 lc rgb mauve1, \
-	'+' using 1:(bound($1,0,.5)*f2($1)):(f2($1-.3*e2)) \
-	w filledcurves closed fs solid 1.0 lc rgb rouge1, \
-	'+' using 1:(bound($1,.5,1)):(bound($1,.5,1)*(1+e2)) \
-	w filledcurves closed fs solid 1.0 lc rgb rouge1, \
+	w filledcurves closed fs transparent pattern 5 lc rgb rouge1, \
 	bound(x,0,1) ls 0 lw 2, bound(x,0,1)*f1(x) ls 0 lw 2,\
 	bound(x,0,1)*f2(x) ls 0 lw 2
+
+# 	'+' using 1:(min(f1($1),1)-e2):(min(f1($1),1)) \
+# 	w filledcurves closed fs solid 1.0 lc rgb bleu1, \
+# 	'+' using 1:(bound($1,0,.5)*f1($1)):(min(f1($1)+e2,f2($1))) \
+# 	w filledcurves closed fs solid 1.0 lc rgb mauve1, \
+# 	'+' using 1:(bound($1,0,.5)*max(f1($1),f2($1+.3*e2))):(f2($1)) \
+# 	w filledcurves closed fs solid 1.0 lc rgb mauve1, \
+# 	'+' using 1:(bound($1,0,.5)*f2($1)):(f2($1-.3*e2)) \
+# 	w filledcurves closed fs solid 1.0 lc rgb rouge1, \
+# 	'+' using 1:(bound($1,.5,1)):(bound($1,.5,1)*(1+e2)) \
+# 	w filledcurves closed fs solid 1.0 lc rgb rouge1, \
+unset multiplot
+	
+# g2(x,y) = min(x*y+x-1,y-.5)
+# g3(x,y) = max(1-x-x*y,x-x*y-y)
+# splot [0:1] [0:3] -g3(x,y)
+# set samples 1000
+# unset key
+# 
+# set fontpath "/usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm:/home/user/.fonts"
+# # set terminal pdfcairo enhanced; set output "plot.pdf"
+# set terminal pngcairo enhanced font "CMU"; set output "plot.png"
+# 
+# set label "T_2" at .45, .4 textcolor rgb bleu3
+# set label "T_3" at .35, 1.1 textcolor rgb mauve3
+# set label "T_4" at .4, 2 textcolor rgb rouge3
+# 
+# plot \
+# 	'+' using 1:(bound($1,1./2,1)*0):(1) \
+# 	w filledcurves closed fs pattern 4 lc rgb bleu1, \
+# 	'+' using 1:(bound($1,0,1./3)*f1($1)):(f2($1)) \
+# 	w filledcurves closed fs pattern 1 lc rgb mauve1, \
+# 	'+' using 1:(bound($1,1./2,1)*1):(3) \
+# 	w filledcurves closed fs pattern 5 lc rgb rouge1, \
+# 	'+' using 1:(min(f1($1),1)-e2):(min(f1($1),1)) \
+# 	w filledcurves closed fs solid 1.0 lc rgb bleu1, \
+# 	'+' using 1:(bound($1,0,.5)*f1($1)):(min(f1($1)+e2,f2($1))) \
+# 	w filledcurves closed fs solid 1.0 lc rgb mauve1, \
+# 	'+' using 1:(bound($1,0,.5)*max(f1($1),f2($1+.3*e2))):(f2($1)) \
+# 	w filledcurves closed fs solid 1.0 lc rgb mauve1, \
+# 	'+' using 1:(bound($1,0,.5)*f2($1)):(f2($1-.3*e2)) \
+# 	w filledcurves closed fs solid 1.0 lc rgb rouge1, \
+# 	'+' using 1:(bound($1,.5,1)):(bound($1,.5,1)*(1+e2)) \
+# 	w filledcurves closed fs solid 1.0 lc rgb rouge1, \
+# 	bound(x,0,1) ls 0 lw 2, bound(x,0,1)*f1(x) ls 0 lw 2,\
+# 	bound(x,0,1)*f2(x) ls 0 lw 2
