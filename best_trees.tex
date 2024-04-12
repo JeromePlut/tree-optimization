@@ -7,6 +7,10 @@
 \usepackage{booktabs}
 \usepackage{newunicodechar}
 \usepackage{bbm}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usetikzlibrary{calc}
 \newunicodechar{𝟙}{\mathbbm{1}}
 \makeatletter
 \let\listORI\list
@@ -29,6 +33,14 @@
 	\def\item{\stepcounter{proofcase}\medskip
 	(\roman{proofcase})~}}{}
 \def\gcost{ν}
+\definecolor{bleu1}{RGB}{185,217,235}
+\definecolor{bleu2}{RGB}{162,178,200}
+\definecolor{bleu3}{RGB}{1,66,106}
+\definecolor{bleu4}{RGB}{0,43,73}
+\definecolor{rouge1}{RGB}{245,218,223}
+\definecolor{rouge2}{RGB}{220,134,153}
+\definecolor{rouge3}{RGB}{224,62,82}
+\definecolor{rouge4}{RGB}{218,41,28}
 	
 
 \DeclareMathOperator\Exp{Exp} % Polya exponential
@@ -55,41 +67,8 @@ The \emph{total weight}~$W(t)$ of a weighted tree is
 the sum of the weight of all its leaves;
 the weight of a tree is thus simply the count of its leaves.
 
-% We write~$\ro T(n)$ for the set of trees with $n$~leaves.
-% Our main interest in this work lies with non-weighted trees;
-% however, weighted trees are a useful tool for studying them.
-% A weighted tree can thus be used to represent
-% a simplified form of the base structure of a full tree:
-% the leaves of the weighted trees represent branches of the full tree,
-% and the weight of each such leaf is then the number of leaves
-% in the corresponding sub-tree.
-
-% \begin{df}
-% Let~$\ro T(n)$ be the set of all non-planar trees
-% with $n$ leaves such that no node has a single child.
-% \end{df}
-% 
-% We use the following syntax for trees: $L$ is the tree with only one
-% leaf, and given trees $t_1, …, t_n$, we write $\treefrom{t_1, …, t_n}$
-% for the tree where $(t_i)$ are the branches of the root node.
-% Note that, since our trees are non-planar, this tree
-% does not depend on the ordering of the trees~$t_i$.
 
 \subsection{Cost functions}
-% \begin{df}
-% For any function~$f: ℤ → ℤ$,
-% we define the \emph{$f$-cost} $c_f(t)$ of a weighted tree~$t$ by:
-% \begin{enumerate}
-% \item if $t$~is a leaf~$w$, then $c_f(t) = w$;
-% \item if $t = \acco{b_1, …, b_k}$ and $t$~has total weight~$n$
-% then $c_f(t) = f(k) ⋅ n + ∑ c_f(b_i)$.
-% \end{enumerate}
-% In particular, we define the \emph{parent cost}~$\pcost(t)$
-% as the cost associated with~$f(k) = 1$,
-% and its \emph{sibling cost}~$\scost(t)$
-% as the cost associated with~$f(k) = k-1$.
-% \end{df}
-
 
 \begin{df}
 We define the \emph{parent cost}~$\pcost(t)$ 
@@ -123,42 +102,193 @@ by a simpler collapsed weighted tree~$t'$ with a small number of leaves,
 where the weight of each leaf of~$t'$ represents the cost of
 a large sub-tree of~$t$.
 
-\subsection{Optimal trees}
+\subsection{Optimality}
 
-% For any tree~$t ∈ \ro T(n)$, we define
-% \begin{enumerate}
-% \item the \emph{parent cost} of~$t$:
-% $\pcost(L) = 0$, $\pcost(\treefrom{t_1, …, t_k}) = ∑ \pcost(t_i) + n$.
-% \item the \emph{sibling cost} of~$t$:
-% $\scost(L) = 0$, $\scost(\treefrom{t_1, …, t_k}) = ∑ \scost(t_i) + (k-1) n$.
-% \item the \emph{geometric cost} of~$t$
-% as the point~$\gcost(t) = (\pcost(t), \scost(t)) ∈ ℝ^2$.
-% \end{enumerate}
-% In particular, if $t$~is a binary tree
-% then $\scost(L) = \pcost(L)$.
-% 
 For any tree~$t$,
 the \emph{cost function} associated to~$t$
 is the affine map~$f_t: λ ↦ λ \pcost(t) + \scost(t)$.
 For any set~$T$ of trees,
 we define~$f_T(λ) = \inf \acco{f_t(λ),\; t ∈ T}$;
 as an infimum of affine functions, $f_T$ is a concave function.
-In fact, it is the dual of the convex hull
-of the set~$\acco{ \gcost(t),\; t ∈ T}$:
+We say that, for a given~$λ$, a tree~$t ∈ T$ is \emph{optimal}
+if its cost is the lowest in~$T$, that is, if $f_t(λ) = f_{T}(λ)$.
 
-\begin{prop}\label{prop:convex}
-Let~$(t_i)$ be the set of points on the lower-left convex hull of
-$G = \acco{\gcost(t),\: t ∈ T}$,
-\emph{i.e.} those points~$t$ such that $G$ intersects non-trivially
-the upper-right quadrant originated at~$t$.
-Assume that $(t_i) = (t_1, …, t_n)$ is finite
-and that they are sorted by decreasing value of~$\pcost(t_i)$;
-define $λ_i = \frac{\scost(t_{i+1})-\scost(t_i)}{\pcost(t_{i+1})-\pcost(t_i)}$.
-Then, for any~$τ ∈ [λ_{i-1}, λ_i]$, $f_T(τ) = f_{t_i}(τ)$;
-that is, the tree~$t_i$ minimizes $f_{t}(τ)$ for all~$t ∈ T$.
-\end{prop}
+Define the points $\gcost(t) = (\pcost(t), \scost(t)) ∈ ℝ^2$,
+and the sets $\gcost(T) = \acco{\gcost(t),\; t ∈ T}$
+and~$\gcost(T)^+$ as the Minkowski sum of~$\gcost(t)$
+and the upper-right quadrant of~$ℝ^2$.
+Then $f_T(λ)$ is the dual of the convex hull~$H$ of~$\gcost(T)^+$.
+This is also the lower-left part of the convex hull of~$\gcost(T)$)
+and therefore all its slopes~$λ_i$ are negative.
+More precisely, if a vertex~$\gcost(t_i)$ of~$H$
+lies between the segments with slopes~$-λ_{i}$ and~$-λ_{i+1}$,
+then for any~$λ ∈ [λ_i, λ_{i+1}]$ and any~$t' ∈ T$
+one has~$f_{t'}(λ) ≥ f_{t_i}(λ)$;
+\emph{i.e.}, $t_i$ is optimal for any~$λ ∈ [λ_i, λ_{i+1}]$.
+
+\begin{center}\begin{tikzpicture}[scale=.5]
+\coordinate(O) at (0,0);
+\coordinate(A) at (-2,2);
+\coordinate(B) at (4,-1.5);
+\coordinate (A1) at (-2,2.5);
+\coordinate(T) at (3,1.5);
+\draw (A) -- (O) -- (B);
+\fill[color=bleu1!30] (O)--(B)-- ++(1,0) |- (A1) -- (A) -- cycle;
+\node at (-1,1) {\raise 8pt\rlap{$-λ_{i+1}$}};
+\node at (1.5,-.5) {\raise 12pt\rlap{\hskip 1em $-λ_i$}};
+\node[color=bleu3] at (B){~\hskip 2em \raise 14pt\rlap{$\gcost(T)^+$}};
+\fill (O) circle(3pt);
+\node at (O) {\raise 7pt\rlap{~$\gcost(t_i)$}};
+\fill (T) circle(3pt);
+\node at (T) {\raise 7pt\rlap{~$\gcost(t')$}};
+\draw[dashed,rouge3] (-3,1.5) -- (3,-1.5);
+\node[color=rouge3] at (-2,1){\lower 9pt\llap{$-λ$~}};
+\end{tikzpicture}\end{center}
+% Namely, each segment of slope~$λ_{i}$
+% between two vertices~$\gcost(t_i)$ and
+% Namely, to each vertex~$\gcost(t_i)$ of~$H$,
+% located between two segments of slopes~$λ_i ≤λ_{i+1}$,
+% corresponds the fact that $t_i$ is optimal for~$λ ∈ [λ_i, λ_{i+1}]$.
+% % $f_T(λ) = f_{t_i}(λ)$ for any~$λ ∈ [λ_i, λ_{i+1}]$.
+
+This allows, given a set of~$N$ trees,
+to compute the function~$f_T$ in time~$O(N \log(N))$,
+using for example Graham's algorithm for the convex hull~\cite{Graham}.
+
+\subsection{Trees with two or three branches}
+
+We now describe the configuration space for
+the optimal trees with two or three branches
+depending on the parameter~$λ$ above as well as
+on the relative sizes of the branches.
+For this we start by studying the weighted trees with three leaves
+and (without loss of generality) total weight one.
+There are only two such trees:
+\begin{align}
+T_2(n_1,n_2,n_3) = \treefrom{n_1,\treefrom{n_2,n_3}}\qquad\text{and}\qquad
+T_3(n_1,n_2,n_3) = \treefrom{n_1,n_2,n_3},
+\end{align}
+where~$n_1 + n_2 + n_3 = 1$.
+We find $\pcost(T_2) = \scost(T_2) = n_1 + 2(n_2 + n_3)$,
+$\pcost(T_3) = n_1 + n_2 + n_3$ and~$\scost(T_3) = 2 (n_1 + n_2 + n_3)$.
+Then, for any~$τ$, we have
+\begin{align}
+f_{T_3}(τ) - f_{T_2}(τ)
+&= n_1 - τ\pa{1-n_1};
+\end{align}
+in other words, $f_{T_3}(τ) ≤ f_{T_2}(τ)$
+if, and only if, $τ ≥ \frac{n_1}{1-n_1}$.
+
+On the other hand, both trees~$T_3$ and~$T_2$ have symmetries.
+Namely, using the symmetry of the tree~$T_3$,
+one may assume that $n_1$~is the largest of the three weights,
+and in particular that~$n_1 ≥ \frac 13$.
+In the same way, for any tree with two branches and at least four leaves,
+we can select which branch is collapsed to the $n_1$ leaf
+and which branch to the~$\treefrom{n_1, n_2}$ leaves.
+Since the cost of such a tree increases with~$n_1$,
+the optimal tree is reached when the $n_1$ branch is the lightest branch
+from the root of the tree, which implies that~$n_1 ≤ \frac 12$.
+Putting all these results together,
+we can represent the set of optimal weighted trees with three leaves
+as in Figure~\ref{fig:trees3}.
+
+In particular, we deduce the following:
+\begin{enumerate}
+\item For~$τ ≤ \frac 12$,
+the optimal trees are binary;
+\item for~$τ ≥ 1$ and~$n ≥ 3$,
+the optimal trees with $n$~leaves are at least ternary.
+\end{enumerate}
+For~$τ ∈ [\frac 12, 1]$, the optimal tree configurations
+actually have a mixture of binary and ternary nodes; cf. below.
+
+\begin{figure}
+\begin{subfigure}{.5\textwidth}
+\centering\hbox{%
+\rlap{\includegraphics[width=70mm]{trees3}}%
+\smash{\raise 46mm\rlap{$τ$}}}%
+\caption{Trees with three leaves}\label{fig:trees3}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\centering\hbox{%
+\rlap{\includegraphics[width=70mm]{trees4}}%
+\smash{\raise 46mm\rlap{$τ$}}}%
+\caption{Trees with four leaves}\label{fig:trees4}
+\end{subfigure}
+\caption{Optimal tree configurations with a small number of leaves.
+The shading indicates the number of leaves of the
+resulting tree.
+The crossed-out areas mark the configurations which can be eliminated
+by symmetries.
+}
+\end{figure}
+
+\subsection{Trees with four leaves}
+Of the five trees with four leaves, the only one which cannot
+be decomposed using the families~$T_2$ and~$T_3$ previously defined
+is the flat tree~$T_4(n_1, n_2, n_3, n_4) = \treefrom{n_1, n_2, n_3, n_4}$.
+
+We can compare this tree with
+$T'_3(n_1, n_2, n_3, n_4) = \treefrom{n_1, n_2, \treefrom{n_3, n_4}}$
+and with~$T'_2(n_1, n_2, n_3, n_4) = \treefrom{\treefrom{n_1, n_2},
+\treefrom{n_3, n_4}}$; using the same methods as previously, we find
+\begin{enumerate}
+\item $f_{T_4}(τ) ≤ f_{T'_3}(τ)$ for~$τ ≥ \frac{n_1 + n_2}{n_3 + n_4}$;
+\item $f_{T_4}(τ) ≤ f_{T'_2}(τ)$ for~$τ ≥ 1$.
+\end{enumerate}
+Moreover, by using the symmetries for~$T_4$ or~$T'_2$,
+one may always ensure that~$n_3 + n_4 ≥ \frac 12$ in both cases.
+Let~$t$ be a large enough tree with a ternary root,
+one may also select to collapse~$t$ into a tree~$T'_3$
+by completely collapsing the two lightest branches of~$t$,
+thus ensuring that~$n_3 + n_4 ≥ \frac 13$.
+We thus obtain the configuration space show
+in Figure~\ref{fig:trees4} (where the $x$-coordinate is $n_3+n_4$)
+and the following conclusions:
+\begin{enumerate}
+\item For~$τ ≤ 1$,
+the optimal trees with $n$~leaves are (at most) ternary.
+\item for~$τ ≥ 2$ and~$n ≥ 4$,
+the optimal trees with $n$~leaves are (at least) quaternary.
+\end{enumerate}
 
 
+% \subsection{Optimal trees}
+% 
+% % For any tree~$t ∈ \ro T(n)$, we define
+% % \begin{enumerate}
+% % \item the \emph{parent cost} of~$t$:
+% % $\pcost(L) = 0$, $\pcost(\treefrom{t_1, …, t_k}) = ∑ \pcost(t_i) + n$.
+% % \item the \emph{sibling cost} of~$t$:
+% % $\scost(L) = 0$, $\scost(\treefrom{t_1, …, t_k}) = ∑ \scost(t_i) + (k-1) n$.
+% % \item the \emph{geometric cost} of~$t$
+% % as the point~$\gcost(t) = (\pcost(t), \scost(t)) ∈ ℝ^2$.
+% % \end{enumerate}
+% % In particular, if $t$~is a binary tree
+% % then $\scost(L) = \pcost(L)$.
+% % 
+% For any tree~$t$,
+% the \emph{cost function} associated to~$t$
+% is the affine map~$f_t: λ ↦ λ \pcost(t) + \scost(t)$.
+% For any set~$T$ of trees,
+% we define~$f_T(λ) = \inf \acco{f_t(λ),\; t ∈ T}$;
+% as an infimum of affine functions, $f_T$ is a concave function.
+% In fact, it is the dual of the convex hull
+% of the set~$\acco{ \gcost(t),\; t ∈ T}$:
+% 
+% \begin{prop}\label{prop:convex}
+% Let~$(t_i)$ be the set of points on the lower-left convex hull of
+% $G = \acco{\gcost(t),\: t ∈ T}$,
+% \emph{i.e.} those points~$t$ such that $G$ intersects non-trivially
+% the upper-right quadrant originated at~$t$.
+% Assume that $(t_i) = (t_1, …, t_n)$ is finite
+% and that they are sorted by decreasing value of~$\pcost(t_i)$;
+% define $λ_i = \frac{\scost(t_{i+1})-\scost(t_i)}{\pcost(t_{i+1})-\pcost(t_i)}$.
+% Then, for any~$τ ∈ [λ_{i-1}, λ_i]$, $f_T(τ) = f_{t_i}(τ)$;
+% that is, the tree~$t_i$ minimizes $f_{t}(τ)$ for all~$t ∈ T$.
+% \end{prop}
+% 
 
 \subsection{Counting trees}
 The single-child condition ensures that $\ro T(n)$~is a finite set for any~$n$.
