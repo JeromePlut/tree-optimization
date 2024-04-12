@@ -53,7 +53,7 @@ set cbrange [0:3]
 set zrange [0:3]
 # set cbrange [0:3]
 # set zrange [0:3]
-eps=.05
+eps=.1
 bg = "white"
 set palette defined (0 bg, \
 	0 bleu1 , 0+eps bg, 1 bg, \

@@ -36,31 +36,107 @@
 
 \section{Optimal trees}
 
+
 \begin{df}
-Let~$\ro T(n)$ be the set of all non-planar trees
-with $n$ leaves such that no node has a single child.
+We recursively define a \emph{weighted tree} (with coefficients in some
+group~$G$) as either:
+\begin{enumerate}
+\item a \emph{leaf}, \emph{i.e.} a single weight~$w ∈ G$; or
+\item an \emph{inner node}, i.e. a set of
+$k$~\emph{branches}~$\treefrom{b_1, …, b_k}$, for an integer~$k ≥ 2$,
+which themselves are weighted trees.
+\end{enumerate}
 \end{df}
 
-We use the following syntax for trees: $L$ is the tree with only one
-leaf, and given trees $t_1, …, t_n$, we write $\treefrom{t_1, …, t_n}$
-for the tree where $(t_i)$ are the branches of the root node.
-Note that, since our trees are non-planar, this tree
-does not depend on the ordering of the trees~$t_i$.
+We consider \emph{non-planar} trees,
+which means that the set of branches is unordered.
+\emph{Trees} are weighted trees such that all leaves have weight~$1$.
+The \emph{total weight}~$W(t)$ of a weighted tree is
+the sum of the weight of all its leaves;
+the weight of a tree is thus simply the count of its leaves.
+
+% We write~$\ro T(n)$ for the set of trees with $n$~leaves.
+% Our main interest in this work lies with non-weighted trees;
+% however, weighted trees are a useful tool for studying them.
+% A weighted tree can thus be used to represent
+% a simplified form of the base structure of a full tree:
+% the leaves of the weighted trees represent branches of the full tree,
+% and the weight of each such leaf is then the number of leaves
+% in the corresponding sub-tree.
+
+% \begin{df}
+% Let~$\ro T(n)$ be the set of all non-planar trees
+% with $n$ leaves such that no node has a single child.
+% \end{df}
+% 
+% We use the following syntax for trees: $L$ is the tree with only one
+% leaf, and given trees $t_1, …, t_n$, we write $\treefrom{t_1, …, t_n}$
+% for the tree where $(t_i)$ are the branches of the root node.
+% Note that, since our trees are non-planar, this tree
+% does not depend on the ordering of the trees~$t_i$.
+
+\subsection{Cost functions}
+% \begin{df}
+% For any function~$f: ℤ → ℤ$,
+% we define the \emph{$f$-cost} $c_f(t)$ of a weighted tree~$t$ by:
+% \begin{enumerate}
+% \item if $t$~is a leaf~$w$, then $c_f(t) = w$;
+% \item if $t = \acco{b_1, …, b_k}$ and $t$~has total weight~$n$
+% then $c_f(t) = f(k) ⋅ n + ∑ c_f(b_i)$.
+% \end{enumerate}
+% In particular, we define the \emph{parent cost}~$\pcost(t)$
+% as the cost associated with~$f(k) = 1$,
+% and its \emph{sibling cost}~$\scost(t)$
+% as the cost associated with~$f(k) = k-1$.
+% \end{df}
+
+
+\begin{df}
+We define the \emph{parent cost}~$\pcost(t)$ 
+and \emph{sibling cost}~$\scost(t)$
+of a weighted tree~$t$ in the following way:
+\begin{enumerate}
+\item if $t$~is a leaf with weight~$w$,
+then $\pcost(t) = \scost(t) = w$;
+\item if $t$~is an inner node~$\treefrom{b_1, …, b_k}$
+with total weight~$n$,
+then
+\begin{align}
+\pcost(t) = n + ∑ \pcost(b_i); \qquad
+\scost(t) = (k-1) n + ∑ \scost(b_i).
+\end{align}
+\end{enumerate}
+\end{df}
+In particular, if $t$~is binary then, since $k = 2$ for all inner nodes,
+$\scost(t) = \pcost(t)$.
+
+While our main interest lies in simple (non-weighted) trees,
+weighted trees can be used as shortcuts for studying them.
+Namely, let~$t'$ be the (weighted) tree obtained from a (weighted) tree~$t$
+by collapsing an inner branch~$b$ to a single leaf
+with weight~$\pcost(b)$;
+it is then obvious from the definition that~$\pcost(t') = \pcost(t)$.
+The same result also holds for~$\scost$.
+
+This allows replacing a tree~$t$ with a possibly large number of leaves
+by a simpler collapsed weighted tree~$t'$ with a small number of leaves,
+where the weight of each leaf of~$t'$ represents the cost of
+a large sub-tree of~$t$.
 
 \subsection{Optimal trees}
 
-For any tree~$t ∈ \ro T(n)$, we define
-\begin{enumerate}
-\item the \emph{parent cost} of~$t$:
-$\pcost(L) = 0$, $\pcost(\treefrom{t_1, …, t_k}) = ∑ \pcost(t_i) + n$.
-\item the \emph{sibling cost} of~$t$:
-$\scost(L) = 0$, $\scost(\treefrom{t_1, …, t_k}) = ∑ \scost(t_i) + (k-1) n$.
-\item the \emph{geometric cost} of~$t$
-as the point~$\gcost(t) = (\pcost(t), \scost(t)) ∈ ℝ^2$.
-\end{enumerate}
-In particular, if $t$~is a binary tree
-then $\scost(L) = \pcost(L)$.
-
+% For any tree~$t ∈ \ro T(n)$, we define
+% \begin{enumerate}
+% \item the \emph{parent cost} of~$t$:
+% $\pcost(L) = 0$, $\pcost(\treefrom{t_1, …, t_k}) = ∑ \pcost(t_i) + n$.
+% \item the \emph{sibling cost} of~$t$:
+% $\scost(L) = 0$, $\scost(\treefrom{t_1, …, t_k}) = ∑ \scost(t_i) + (k-1) n$.
+% \item the \emph{geometric cost} of~$t$
+% as the point~$\gcost(t) = (\pcost(t), \scost(t)) ∈ ℝ^2$.
+% \end{enumerate}
+% In particular, if $t$~is a binary tree
+% then $\scost(L) = \pcost(L)$.
+% 
 For any tree~$t$,
 the \emph{cost function} associated to~$t$
 is the affine map~$f_t: λ ↦ λ \pcost(t) + \scost(t)$.
@@ -81,6 +157,7 @@ define $λ_i = \frac{\scost(t_{i+1})-\scost(t_i)}{\pcost(t_{i+1})-\pcost(t_i)}$.
 Then, for any~$τ ∈ [λ_{i-1}, λ_i]$, $f_T(τ) = f_{t_i}(τ)$;
 that is, the tree~$t_i$ minimizes $f_{t}(τ)$ for all~$t ∈ T$.
 \end{prop}
+
 
 
 \subsection{Counting trees}
