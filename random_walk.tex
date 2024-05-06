@@ -2,7 +2,13 @@
 \usepackage{math}
 \usepackage{unicode}
 \usepackage[margin=20mm]{geometry}
+\let\Re\undefined \DeclareMathOperator\Re{Re}
 \begin{document}
+
+\section{Generating series for random walks}
+
+\subsection{The series counting the passage of the walk}
+
 Let~$W(a→^{ℓ} b)$ be the set of paths of steps in~$±1$
 which start at a value~$a ∈ ℤ$ and end at~$b ∈ ℤ$
 after exactly~$ℓ$ steps (i.e. they do not meet $b$~before).
@@ -157,11 +163,115 @@ P_b^{-1} Z_b
 	\frac 12 \pa{1-(iz)^b}\\
 	\frac 12 \pa{1+(iz)^b}};\\
 F_{j,b} &=
-\frac 1b ∑_{k=1}^{b-1} \sin \frac{jkπ}{b}
-\frac{\tan \frac{kπ}{b}}{1-2x\cos\frac{kπ}{b}}
+∑_{k=1}^{b-1}\frac{\frac 1b \sin \frac{jkπ}{b}
+\tan \frac{kπ}{b}}{1-2x\cos\frac{kπ}{b}}
 \frac{(1-(-1)^k z^b)(1+z^2)}{1-2\cos\frac{kπ}{b}z+z^2}
-+ \frac{i^j+(-i)^j -i^j(iz)^b+(-i)^j(iz)^b}{2}\\
++ i^j \frac{1+(-1)^j-(iz)^b+(-1)^j(iz)^b}{2}
+\end{align}
+For~$j = 0$ we do find~$F_{0,b} = 1$
+and likewise (since we assumed $b$~odd) $F_{b,b} = z^b$.
+
+
+\subsection{Extracting information from the series}
+
+From the series~$F_{j,b}(x,z)$ we can recover the following information:
+\begin{enumerate}
+\item the cardinality~$N_{j,b,ℓ}$ of~$W(s→^{ℓ}[0,b])$:
+since each walk passes exactly once by either~$0$ or~$b$,
+we find
+\begin{align}
+N_{j,b}(x) = ∑ N_{j,b,ℓ} x^{ℓ} = [z^0 + z^b] F_{j,b}.
+\end{align}
+Moreover, by symmetry of the random walk,
+$[z^b] F_{j,b} = [z^0] F_{b-j,b}$, so that
+\begin{align}
+N_{j,b}(x) = F_{j,b}(x,0) + F_{b-j,b}(x,0).
+\end{align}
+\item the probability~$P_{j,b,ℓ}$ that
+a (balanced) random walk has length~$ℓ$:
+it is exactly $(1/2)^{ℓ} N_{j,b,ℓ}$,
+which generate the series~$P_{j,b}(x) = N_{j,b}(x/2)$.
+\item given an integer~$ℓ$ and a value~$a ∈ [0,b]$,
+the expected number of times a random element of~$W(ℓ)$
+takes the value~$a$ is~$[z^a]$
+is $[z^a] F_{j,b,ℓ}/N_{j,b,ℓ}$.
+\item the probability that any random step of a walk of length~$ℓ$
+takes the value~$a$
+is~$[z^a] F_{j,b,ℓ}/(ℓ N_{j,b,ℓ})$.
+\item the probability that a random step of a random walk is~$a$
+is~$S_{j,b}(a) = ∑_{ℓ} [z^a] F_{j,b,ℓ}/ℓ$.
+Together these numbers generate the series
+\begin{align}
+S_{j,b}(y) = ∑_{a} S_{j,b}(a) y^a
+ = ∑_{ℓ} \frac{1}{ℓ} F_{j,b,ℓ}(y)
+ = ∫ F_{j,b}(y) \frac{d y}{y}.
+\end{align}
+\end{enumerate}
+
+
+From this we can compute $N(s,b,ℓ) = \abs{W(s→^{ℓ}[0,b])} = [z^0 + z^b]F_{s,b}$,
+noting that by symmetry we have $[z^b] F_{s,b} = [z^0] F_{b,s-b}$:
+\begin{align}
+[z^0] F_{j,b}
+&=∑_{k=1}^{b-1}\frac{\frac 1b \sin \frac{jkπ}{b}
+\tan \frac{kπ}{b}}{1-2x\cos\frac{kπ}{b}} + \Re(i^j);\\
+[z^b] F_{j,b}
+&= [z^0] F_{b-j,b}\\
+&= ∑_{k=1}^{b-1}
+	\frac{\frac 1b \sin\pa{kπ-\frac{jkπ}{b}} \tan \frac{kπ}{b}}
+		{1-2x\cos\frac{kπ}{b}} + \Re(i^{b-j})\\
+&= ∑_{k=1}^{b-1}
+	\frac{\frac 1b (-1)^{k-1} \sin\frac{jkπ}{b} \tan\frac{kπ}{b}}
+		{1-2x\cos\frac{kπ}{b}} + \Re(i^{b-j})\\
+% N_{s,b,ℓ}
+% &= [z^0] F_{s,b} + [z^0] F_{b-s,b}\\
+% &= ∑_{k=1}^{b-1}\frac{\frac 1b \sin \frac{jkπ}{b}
+% \tan \frac{kπ}{b}}{1-2x\cos\frac{kπ}{b}}
+% + ∑_{k=1}^{b-1}\frac{\frac 1b \sin\pa{j
+% + i^j \frac{1+(-1)^j-(iz)^b+(-1)^j(iz)^b}{2}
+\end{align}
+% For $b → ∞$ we have:
+% \begin{align}
+% \frac 1b \tan \frac{kπ}{b} \sin\frac{jkπ}{b}
+% 	&= \frac{jk^2π^2}{b^3} + O(b^{-5});\\
+% \frac{1}{1-2x \cos \frac{kπ}{b}}
+%  &= \frac{1}{1-2x} - \frac{x k^2 π^2}{(1-2x)^2} \frac{1}{b^2} +
+%  O(b^{-4});\\
+% \frac{1}{1-2z \cos \frac{kπ}{b} + z^2}
+% 	&= \frac{1}{(1-z)^2} - \frac{z k^2 π^2}{(1-z)^4} \frac{1}{b^2} +
+% 	O(b^{-4});\\
+% \end{align}
+% hence
+% \begin{align}
+% F_{j,b} &=
+% ∑_{k=1}^{b-1} \frac{jk^2 π^2}{b^3}
+% 	(1-(-1)^k z^b)(1+z^2)
+% 	\frac{1}{1-2x} \frac{1}{(1-z)^2} \pa{1+O(b^{-2})} + …
+% \end{align}
+For~$b → ∞$ and~$\abs{z}<1$ (and thus $z^b → 0$),
+the limit of~$F_{j,b}(x,z)$ is given as a Riemann sum by:
+\begin{align}
+F_{j,b}(x,z)
+&→ \frac{1+z^2}{π} ∫_{0}^{π}
+	\frac{\sin(j θ) \tan(θ)}{(1-2x\cos(θ))(1-2z\cos(θ)+z^2)} d θ
+	+ \mathrm{Re}(i^j)
+\end{align}
+Using
+\begin{align}
+\frac{1}{1-2x \cos θ}
+&= ∑_{ℓ} (2x \cos θ)^ℓ;\\
+\frac{1}{1-2z\cos(θ)+z^2}
+&= \frac{1}{e^{iθ}-e^{-iθ}}
+	\pa{\frac{e^{iθ}} {1-e^{iθ} z} -\frac{e^{-iθ}}{1-e^{-iθ}z}}\\
+&= \frac{1}{e^{iθ}-e^{-iθ}}
+	∑_{n} \pa{e^{iθ} (e^{iθ} z)^n - e^{-iθ} (e^{-iθ} z)^n}\\
+&= ∑_{n} \frac{\sin (n+1)θ}{\sin θ} z^n
 \end{align}
 
+% \begin{align}
+% F_{j,b}(x,z)
+% &→ \frac{1+z^2}{π} ∫_{0}^{π} \sin(j θ) \tan(θ)
+% ∑_{ℓ,n} (2 \cos θ)^n \frac{\sin(n+1)θ}{\sin θ} x^{ℓ} z^n d θ
+% \end{align}
 
 \end{document}
