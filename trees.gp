@@ -59,6 +59,7 @@ defun("slopes", (f=P(3), N=300)->{
 		f(n+1)-f(n), n, f(n)); s=t);
 	);
 )};
+\\"
 defun("tabulate", (f=T3p, N=25,l=log_e(D))->{
 	for(n=1,N,
 		b=l(n);
@@ -81,3 +82,21 @@ defun("tplot", (f=T2p, N=30,l=L)->{
 	)
 });
 
+defun("geom_sum", (d,e,X='X)->{
+	local(a,b,c); a=d^e; b=2*a; c=d*a;
+	local(T=(u,v,f)->(1-X)*sum(n=u,v-1,X^n*subst(f,'n,n)));
+	S1 = T(a,b, (e+2)*n-b ) + T(b, c, (e+1)*n);
+	S2 = (e+2)*T(a,b,n) + (e+1)*T(b,c,n) - b*T(a,b,1);
+	U1 = (1-X)*S1;
+	U2 = (1-X)*S2;
+	U3 = (e+2)*((b-1)*X^(b+1)-b*X^b-(a-1)*X^(a+1)+a*X^a);
+	U3+= (e+1)*((c-1)*X^(c+1)-c*X^c-(b-1)*X^(b+1)+b*X^b);
+	U3+= -b*(X^(b+1)-X^b-X^(a+1)+X^a);
+	U4 = (e+1)*(c-1)*X^(c+1) - (e+1)*c*X^c;
+	U4+= -X^(b+1);
+\\ 	U4+= ((e+2)*(b-1)-(e+1)*(b-1)-b)*X^(b+1);
+	U4+= (-e*a+e+2)*X^(a+1);
+	U4+= (e*a)*X^a;
+	print(U2-U4);
+	U2
+});
