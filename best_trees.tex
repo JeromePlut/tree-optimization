@@ -462,6 +462,7 @@ Then the parent cost and sibling cost of~$T_d(n)$ are
 \end{align}
 \end{prop}
 
+
 \begin{proof}
 Let~$u = \pcost(T_d) - E_d$.
 Then we check that $\go D_d(u)(n) = 0$ for any~$n ≥ d$.
@@ -529,157 +530,76 @@ The following table summarizes the costs of these families:
 \end{align}
 \end{prop}
 
-% \subsubsection{Binary trees $T_2(n)$}
-% 
-% We define the family of \emph{binary trees}~$T_2(n)$ by
-% $T_2(1) = L$ and $T_2(n) = \treefrom{T_2(\floor{n/2}),
-% T_2(\ceil{n/2})}$ for~$n ≥ 2$;
-% 
-% \begin{prop}\label{prop:cost-T2}
-% For any integer~$n$, let~$b = \floor{\log_2(n)}$. Then
-% $\pcost(T_{2}(n)) = \scost(T_2(n)) = (b+2)⋅n - 2^{b+1}$;
-% \end{prop}
-% 
-% 
-% \begin{proof}
-% First note that, since $T_2(n)$ is binary,
-% $\scost(T_2(n)) = \pcost(T_2(n))$.
-% 
-% On the other hand, using the notations from~(\ref{eq:def-D}),
-% we see that $\go D(\pcost(T_2) - J)$ is $
-% 
-% 
-% We prove the result for~$\pcost(T_2(n))$ by induction.
-% If $n = 2 n'$ is even then $b' = \floor{\log_2(n')} = b-1$,
-% so that $\pcost(T_2(n)) = n + 2 \pcost(T_2(n'))
-%  = n + 2 (b+1)(n/2) - 2⋅ 2^b = (b+2) n - 2^{b+1}$ as required.
-% In the case where~$n = 2^{b+1}-1$,
-% one has $n = 2n'+1$ with $n' = 2^{b}-1$,
-% so that $\floor{\log_2(n')} = b-1$
-% while $\floor{\log_2(n'+1)} = b$;
-% we check that $n + \pcost(T_2(n')) + \pcost(T_2(n'+1))
-% %  = (2⋅2^b - 1) + (b+1)(2^b-1) - 2^b + (b+2) 2^b - 2⋅2^b
-% %  = (2+b+1-1+b+2-2) 2^b -1-b-1
-%  = (2b+2) 2^b - (b+2)
-%  = (b+2)⋅n-2^{b+2}$ as expected.
-% In the other cases, $b' = \floor{\log_2(n')} = \floor{\log_2(n'+1)} = b-1$;
-% the proof is then similar.
-% \end{proof}
-% 
-% \subsubsection{Binary-ternary trees $T_{23}(n)$}
-% 
-% We define the family of \emph{binary-ternary trees}~$T_2(n)$ by
-% $T_{23}(1) = L$,
-% $T_{23}(3⋅2^k) = \treefrom{T_{23}(2^k), T_{23}(2^k), T_{23}(2^k)}$,
-% and $T_{23}(n) = \treefrom{T_{23}(\floor{n/2}), T_{23}(\ceil{n/2})}$
-% otherwise.
-% 
-% In particular, one easily checks that $T_{23}(n) = T_2(n)$
-% whenever $n$~is a power of two.
-% 
-% \begin{prop}\label{prop:cost-T23}
-% Let~$n$ be an integer, $b = \floor{\log_2(n)}$,
-% and $x = n/2^{b+1}$. Then:
-% \begin{enumerate}
-% \item $\pcost(T_{23}(n)) =
-% \begin{cases}
-% b⋅n & \text{if $1/2 ≤ x ≤ 3/4$,}\\
-% (b+4)⋅n - 6⋅2^{b} & \text{if $3/4 ≤ x < 1$.}
-% \end{cases}$
-% \item $\scost(T_{23}(n)) =
-% \begin{cases}
-% (b+3)⋅n - 3⋅2^b & \text{if $1/2 ≤ x ≤ 3/4$,}\\
-% (b+1)⋅n & \text{if $3/4 ≤ x < 1$.}
-% \end{cases}$
-% \end{enumerate}
-% (Note that for cases~(ii) and~(iii), both values coincide for~$x = 3/4$).
-% \end{prop}
-% 
-% 
-% \begin{proof}
-% \begin{proofcases}
-% \item
-% The result is easy to check by induction for~$n = 2^b$.
-% The case of~$n = 3 ⋅ 2^{b-1}$ follows.
-% We prove the remaining cases by induction.
-% Assume that $n = 2n'$ is even,
-% so that $\pcost(T_{23}(n') = n + 2 \pcost(T_{23}(n'))$;
-% then one has $b' = \floor{\log_2(n')} = b-1$
-% and~$x' = n'/2^{b'} = x$.
-% If $x ≤ 3/4$ then $\pcost(T_{23}(n')) = b'⋅n'$,
-% so that $\pcost(T_{23}(n)) = n + 2 (b-1)(n/2) = bn$.
-% If $x > 3/4$ then $\pcost(T_{23}(n')) = (b'+4)⋅n' - 6⋅2^{b'}$,
-% so that $\pcost(T_{23}(n)) = n + 2((b-1)+4)(n/2) - 12⋅2^{b-1}
-%  = (b+4) n - 6⋅2^{b}$.
-% Finally, if $n = 2n'+1$ is odd,
-% then $b' = \floor{\log_2(n')} = \floor{\log_2(n'+1)} = b-1$,
-% and $n'/2^{b'}$, $(n'+1)/2^{b'}$ are $> 3/4$ exactly when $n/2^b > 3/4$.
-% The result then follows in the same way.
-% 
-% \item
-% \end{proofcases}
-% \end{proof}
-% 
-% As a simple consequence of Props.~\ref{prop:cost-T2}
-% and~\ref{prop:cost-T23} we obtain the following slope:
-% 
-% \begin{prop}\label{prop:slope-T2-T23}
-% For any integer~$n$, with the same notations as in
-% Prop.~\ref{prop:cost-T23}:
-% \begin{align}
-% \gcost(T_{23}(n)) - \gcost(T_{2}(n)) &=
-% \begin{cases}
-% \rlap{$(n - 2^b)$}\hphantom{(2^{b+1}-n\;\;} (-2,1) & \text{if $x≤ 3/4$},\\
-% (2^{b+1} - n) (-2,1) & \text{if $x ≥ 3/4$}.
-% \end{cases}
-% \end{align}
-% In particular, the segment~$(\gcost(T_2(n)), \gcost(T_{23}(n)))$
-% is either degenerate (when $n$~is a power of~two)
-% or has slope~$-\frac 12$.
-% \end{prop}
-% 
-% \subsubsection{Ternary-binary trees $T_{32}(n)$}
-% 
-% The tree family $T_{32}(n)$ is defined in the following way:
-% \begin{align}
-% T_{32}(n) &= \begin{cases}
-% \treefrom{T_{32}(\floor{n/2}), T_{32}(\floor{(n+1)/2})}
-% 	&\text{if $6⋅2^b < n < 9⋅2^b$ for some integer~$b$,}\\
-% \treefrom{T_{32}(\floor{n/3}), T_{32}(\floor{(n+1)/3}),
-% 	T_{32}(\floor{(n+2)/3})}
-% 	&\text{if $9⋅2^b ≤ n ≤ 6⋅2^b$}.
-% \end{cases}
-% \end{align}
-% 
-% \subsubsection{(Almost) Ternary trees $T_3(n)$}
-% 
-% Since ternary trees always have an odd number of leaves,
-% the trees $T_3(n)$ are not always ternary.
-% They are defined by $T_3(1) = L$,
-% $T_3(2) = \treefrom{L,L}$,
-% $T_3(4) = \treefrom{T_3(2), T_3(2)}$,
-% $T_3(5) = \treefrom{T_3(3), T_3(2)}$,
-% and otherwise $T_3(n) = \treefrom{T_3(\floor{n/3}),
-% 	T_3(\floor{(n+1)/3}), T_3(\floor{(n+2)/3})}$.
-% 
-% \begin{prop}
-% Let~$n$ be an integer, $b = \floor{\log_3(n)}$,
-% and $x = n/3^{b+1}$. Then:
-% \begin{enumerate}
-% \item $\pcost(T_{3}(n)) =
-% \begin{cases}
-% (b+4)⋅n - 4⋅3^{b} & \text{if $1/3 ≤ x ≤ 4/9$,}\\
-% (b+1)⋅n & \text{if $4/9 ≤ x < 1$.}
-% \end{cases}$
-% % \item $\scost(T_{3}(n)) =
-% % \begin{cases}
-% % (b+3)⋅n - 3⋅2^b & \text{if $1/2 ≤ x ≤ 3/4$,}\\
-% % (b+1)⋅n & \text{if $3/4 ≤ x < 1$.}
-% % \end{cases}$
-% \end{enumerate}
-% (Note that for cases~(ii) and~(iii), both values coincide for~$x = 3/4$).
-% \end{prop}
-% 
-% 
+
+\subsubsection{Averages}
+
+Let~$μ$ be the geometric distribution on~$⟦1,∞⟦$
+with parameter~$ρ ∈ [0,1[$: $μ(n) = ρ^{n-1}(1-ρ)$ for any~$n ≥ 1$.
+
+We can compute the expected value, according to~$μ$,
+for the cost of the regular tree~$T_d$:
+
+
+\begin{proof}
+
+\begin{align}
+𝔼(\pcost(T_d))
+&= ∑_{e≥0} \pa{∑_{n=d^e}^{2 d^e-1} μ(n) \pa{(e+2) n - 2 d^e}
+	+ ∑_{n=2 d^e}^{d^{e+1}-1} μ(n)\pa{(e+1) n} } \\
+&= ∑_{e≥0} \pa{ (e+1) ∑_{n=d^e}^{d^{e+1}-1} n μ(n)
+	+ ∑_{n=d^e}^{2 d^e-1} μ(n) \pa{n - 2 d^e}}\\
+&= ∑_{e≥0} \pa{ (e+2) ∑_{n=d^e}^{2 d^e-1} n μ(n)
+	+ (e+1) ∑_{n=2 d^e}^{d^{e+1}-1} n μ(n)
+	- 2 d^e ∑_{n=d^e}^{2 d^e-1} μ(n)}\\
+&= (1-ρ) ∑_{e≥0} \pa{ (e+2) ∑_{n=d^e}^{2 d^e-1} n ρ^n
+	+ (e+1) ∑_{n=2 d^e}^{d^{e+1}-1} n ρ^n
+	- 2 d^e ∑_{n=d^e}^{2 d^e-1} ρ^n}\\
+% &= (1-ρ) ∑_{e≥0} \big( (e+1) \frac{1}{(ρ-1)^2}
+% 	\pa{(d^{e+1}-1) ρ^{d^{e+1}} - d^{e+1} ρ^{d^{e+1}-1}
+% 		- (d^{e}-1) ρ^{d^e+1} + d^e ρ^{d^e}}\\
+% &
+% 	- 2 d^{2e} + \frac{1}{(ρ-1)^2} \pa{
+% 	(2 d^e-1) ρ^{2 d^e} - 2 d^e ρ^{2 d^e-1}
+% 	- (d^e-1) ρ^{d^e+1} + d^e ρ^{d^e}}\big)\\	
+\end{align}
+By deriving the geometric sum $∑ X^n$ we find, for~$X ≠ 1$:
+\begin{align}
+∑_{n=a}^{b-1} n X^n
+&= \frac{1}{(X-1)^2}
+	\pa{(b-1) X^{b+1} - b X^{b} - (a-1) X^{a+1} + aX^a}.
+\end{align}
+Using the shorthands $a = d^e$, $b = 2 d^e$ and~$c = d^{e+1}$
+we find:
+\begin{align}
+(1-ρ)^2 ∑_{n=a}^{b-1} n ρ^n
+	&= (b-1) ρ^{b+1} - b ρ^{b} - (a-1) ρ^{a+1} + a ρ^a;\\
+(1-ρ)^2 ∑_{n=b}^{c-1} n ρ^n
+	&= (c-1) ρ^{c+1} - c ρ^{c} - (b-1) ρ^{b+1} + b ρ^b;\\
+(1-ρ)^2 ∑_{n=a}^{b-1} \hphantom{n}ρ^n &= (1-ρ) (ρ^a - ρ^b)
+	\quad =\quad ρ^{b+1} - ρ^{b} - ρ^{a+1} + ρ^a;
+\end{align}
+and hence, grouping all terms together by powers of~$ρ$:
+\begin{align}
+(1-ρ) 𝔼(\pcost(T_d))
+&= ∑_{e ≥ 0} \pa{
+	(e+1)(c-1) ρ^{c+1} - (e+1)c ρ^c - ρ^b - e(a-1) ρ^{a+1}+  2 ρ^{a+1} + ea ρ^a
+	}
+\end{align}
+When summing over all~$e$, the terms in~$ρ^a$ cancel those with~$ρ^c$
+and likewise the terms~$-e(a-1) ρ^{a+1}$ cancel those with~$ρ^{c+1}$,
+and it remains
+\begin{align}
+(1-ρ) 𝔼(\pcost(T_d)) &= ∑_{e ≥ 0} \pa{2 ρ^{d^e+1} - ρ^{2 d^e}}.
+\end{align}
+
+On the other hand:
+\begin{align*}
+𝔼(\scost(T_d)) &=
+(1-ρ)∑_{e ≥ 0} ∑_{b=1}^{d-1} ∑_{n=b d^e}^{(b+1) d^e-1}
+	ρ^n \pa{((d-1)e + 2b) n - b(b+1) d^e}\\
+&=(1-ρ)∑_{e≥0} ∑_{b=1}^{d-1} ((d-1)e + 2b) ∑ n ρ^n - b(b+1) d^e ∑ ρ^n\\
+\end{align*}
+\end{proof}
+
 
 \end{document}
