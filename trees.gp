@@ -1,86 +1,3 @@
-\\ cost of the 2-3 tree
-\\ we check that: f(2^e m) = 2^e (m⋅e + f(m)) for m odd
-\\ f(2^i+1) = i*(2^i+1)
-\\ f(2^i+3) = i*(2^i+3) (i large enough)
-\\ f(2^i+5) = i*(2^i+5) (idem)
-\\ f(i) is generally close to i*floor(log2(i))
-\\ except in intervals: ]7*2^i, 2^(i+3)]
-
-ispow2=n->frac(log2(n))==0;
-T2p=n->if(n<=1,0, n+if(n%2==0, 2*T2p(n/2), T2p((n-1)/2)+T2p((n+1)/2)));
-T2s=T2p;
-T23p=n->if(n<=1,0,if(n==3,3,n+T23p(floor(n/2))+T23p(floor((n+1)/2))));
-T23s=n->if(n<=1,0,if(ispow2(n/3),2*n+3*T23s(n/3),n+if(n%2==0,2*T23s(n/2),T23s((n-1)/2)+T23s((n+1)/2))));
-T3p=n->if(n<=5, [0,2,3,8,10][max(1,n)], n+sum(i=0,2,T3p(floor((n+i)/3))));
-T3s=n->if(n<=5, [0,2,6,8,13][max(1,n)], 2*n+sum(i=0,2,T3s(floor((n+i)/3))));
-
-f=T23p;
-L=n->ceil(log(n)/log(2));
-g2=(b,x)->2^b*(b*x+x-1);
-
-F=(n,M=[;])->{
-	for(i=1,#M~,if(n==M[i,1],return(M[i,2])));
-	if(n<=1, return(0));
-	return(n+F(floor(n/2),M)+F(floor((n+1)/2),M));
-};
-D=3;
-L=(n,d=D)->if(n<=0, 0, ceil(log(n)/log(d)));
-P=(n,d=D)->if(n <= 1, 0, n+sum(i=0,d-1,P(floor((n+i)/d),d)));
-Q=(n,d=D)->{local(e=L(n,d)); if(n<=2*d^(e-1), (e+1)*n-2*d^(e-1), e*n)};
-E=(n,d=D)->{if(n<=0,return(1/(1-d)));local(e=L(n,d)); -(d^e)/(d-1)+e*(n)};
-Dr=(f,d=D)->(n)->f(n)-sum(i=0,d-1,f(floor((n+i)/d)));
-In=(g,d=D)->(n)->if(n<=1,[-g(0)/(d-1),'C][1],g(n)+sum(i=0,d-1,In(g,D)(floor((n+i)/d))));
-\\ G=(f=1,d=D)->(n)->{if(n<=d-1,return(0));
-\\ 	subst(f,'x,n)+sum(i=1,d-1,G(f,d)(floor((n+i)/d)))};
-\\ make_G(f,d=D)=(n)->{ f(n)-sum(i=0,d-1,f(floor((n+i)/d)))};
-\\ log_e=(d=D)->(n)->if(n<=0,0,ceil(log(n)/log(d)));
-clogD=(n,d=D)->if(n<=1,[l0,0][n+1],ceil(log(n)/log(d)));
-flogD=(n,d=D)->if(n<=1,[l0,0][n+1],floor(log(n)/log(d)));
-U=(n,d=D)->(n<=1);
-V=(n,d=D)->n-(n==1);
-J=(n,d=D)->n+(n==0);
-\\ G=(d)->(n)->{if(n<=0,return(0));local(e=ceil(log(n)/log(d)));
-\\ 	e*d^e-(d^e-1)/(d-1)+e*(n-d^e)};
-\\ test(d=3,N=50)={
-\\ 	for(n=1,N,local(t);
-\\ 	local(g, s, t); g = G(d)(n); s = (n-1)+sum(i=0,d-1,G(d)(floor((n+i)/d)));
-\\ 	print([n,g,s,g-s]);
-\\ 	);}
-\\ (e+2)*(n-d^e)+e*d^e, (e+1)*(n-2*d^e)+2*(e+1)*d^e)};
-
-defun("slopes", (f=P(3), N=300)->{
-  my(s = 0, y=0);
-  for(n=1, N,
-		my(z, t);
-		z = f(n+1); t = z-y;
-		print([n, y, z]);
-\\ 		if(t != s, printf("from %03d: slope = %03d\n", n, t); s=t);
-		if(t != s, printf("from %03d: slope = %s (f(%s)=%s)\n", n,
-		f(n+1)-f(n), n, f(n)); s=t);
-	);
-)};
-\\"
-defun("tabulate", (f=T3p, N=25,l=log_e(D))->{
-	for(n=1,N,
-		b=l(n);
-		printf("%3d│%4d‖%5d\n", b, n, f(n));
-\\ 		printf("%3d│%4d‖%5d|%5d\n", b, n, f(n), f(n)-g2(b,n/2^b));
-	);
-});
-defun("tplot", (f=T2p, N=30,l=L)->{
-	local(v);
-	v=vector(N, n, f(n)-n*l(n));
-	print1("[32m");
-	forstep(y=vecmax(v), vecmin(v), -1,
-		if(y==0,
-			print1("[m");
-			for(i=1,#v,print1("━"));
-			print1("\n[31m");
-		);
-		for(x=1,#v, if(abs(v[x])>=abs(y), print1("█"), print1(" ")));
-		print();
-	)
-});
 
 defun("geom_sum", (d,e,X='X)->{
 	local(a,b,c); a=d^e; b=2*a; c=d*a;
@@ -100,3 +17,41 @@ defun("geom_sum", (d,e,X='X)->{
 	print(U2-U4);
 	U2
 });
+
+W=b->Mod('w,polcyclo(2*b,'w));
+R=(expr,N=1e3)->round(expr*N)/N;
+X=(expr,b)->R(subst(lift(expr),'w,exp(I*Pi/b)));
+
+P=b->local(w=W(b));matrix(b+1,b+1,i,j,if(j==b,I^(i-1),if(j==b+1,I^(1-i),if(i>=2&&i<=b,(w^((i-1)*j)-w^-((i-1)*j))/(2*I)))));
+Q=b->local(w=Mod('w,polcyclo(2*b,'w)));matrix(b-1,b-1,i,j,(w^(i*j)-w^-(i*j))/(2*I));
+M=b->matrix(b+1,b+1,i,j,(i>1)&&(i<=b)&&(abs(i-j)==1));
+
+P1=b->matrix(b+1,b+1,i,j,if(j==b,I^(i-1),if(j==b+1,I^(1-i),if(i>1&&i<=b,sin((i-1)*j*Pi/b)))));
+Q1=b->matrix(b+1,b+1,i,j,if(j==1,if(i<b,tan(i*Pi/b),b/2),if(j==b+1,if(i<b,(-1)^(i-1)*tan(i*Pi/b),(-1)^i*b/2*I^b),if(i<b,2*sin(i*(j-1)*Pi/b)))));
+D=b->matdiagonal(vector(b+1,j,if(j<b,2*cos(j*Pi/b))));
+
+Z=b->vector(b+1,i,z^(i-1))~;
+{ PZ=b->vector(b+1,j,if(j<b,
+	1/b*tan(j*Pi/b)/(1-2*cos(j*Pi/b)*z+z^2)*(1-(-1)^j*z^b)*(1+z^2),
+	(1+(-1)^j*(I*z)^b)/2))~; }
+{ MPZ=b->vector(b+1,j,if(j<b,1/(1-2*x*cos(j*Pi/b))*
+	1/b*tan(j*Pi/b)/(1-2*cos(j*Pi/b)*z+z^2)*(1-(-1)^j*z^b)*(1+z^2),
+	(1+(-1)^j*(I*z)^b)/2))~; }
+F=b->(1-x*M(b))^-1*Z(b);
+{F1=b->vector(b+1,j,sum(k=1,b-1,sin((j-1)*k*Pi/b)*
+	1/(1-2*x*cos(k*Pi/b))*
+	1/b*tan(k*Pi/b)/(1-2*cos(k*Pi/b)*z+z^2)*(1-(-1)^k*z^b)*(1+z^2))
+	+ I^(j-1)*(1+(-1)^(j-1)-(I*z)^b+(-1)^(j-1)*(I*z)^b)/2)~;}
+\\ 	+ (I^(j-1)+(-I)^(j-1)-I^(j-1)*(I*z)^b+(-I)^(j-1)*(I*z)^b)/2)~;}
+R(F(5)-F1(5))
+G=b->taylor(substvec(F(b),[x],['X]),z);
+H=(b,d)->vector(b+1,j,polcoeff(G(b)[j], d, z))~;
+{F0=b->local(f=F(b)); subst(f,z,0);}
+{F01=b->R(vector(b+1,j,
+	1/b*sum(k=1,b-1,sin((j-1)*k*Pi/b)*tan(k*Pi/b)/(1-2*x*cos(k*Pi/b)))
+	+real(I^(j-1))));}
+	
+\\ {F1=b->vector(b+1,j,
+\\ 	1/b*sum(k=1,b-1,sin(j*k*Pi/b)*tan(k*Pi/b)/(1-2*x*cos(k*Pi/b))
+\\ 	*(1-(-1)^k*z^b)/(1-2*z*cos(k*Pi/b)+z^2))
+\\ 	+(I^j-(-I)^j-I^j*(I*z)^b+(-I)^j*(I*z)^b)/2)~;}
