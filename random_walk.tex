@@ -9,44 +9,139 @@
 
 \subsection{The series counting the passage of the walk}
 
-Let~$W(a→^{ℓ} b)$ be the set of paths of steps in~$±1$
-which start at a value~$a ∈ ℤ$ and end at~$b ∈ ℤ$
-after exactly~$ℓ$ steps (i.e. they do not meet $b$~before).
+Let~$W(s→^{ℓ} [a,b])$ be the set of paths~$(w_0, …, w_{ℓ})$
+with $ℓ$~steps in~$±1$ (and thus $ℓ+1$ values)
+which start at a value~$s ∈ ℤ$ and end at one of the values~$a, b ∈ ℤ$
+after exactly~$ℓ$ steps (i.e. they do not meet $a$~or~$b$~before).
 (obviously, this set is non-empty only for $a+b+ℓ$~even
 and~$\abs{a-b} ≤ ℓ$).
+We also define~$N(s →^{ℓ}[a,b]) = \abs{W(s→^{ℓ}[a,b])}$.
 
-\paragraph{The main generating series.}
 Fix integers~$0 ≤ s ≤ b$ and~$ℓ ≥ 0$ and define
 \begin{align}
-f_{s,b,ℓ}(z) = ∑_{w ∈ W(s→^{ℓ} [0,b])} ∑_{m ∈ w} z^m.
+f_{j,b,ℓ}(z) &= ∑_{w ∈ W(j→^{ℓ} [0,b])} ∑_{m ∈ w} z^m.
 \end{align}
 This polynomial counts how many times each value in~$[0,b]$
 is reached by the walk~$w$.
-Since each walk finally reaches exactly once the values~$0$ or~$b$,
-the cardinality of~$W(s→^{ℓ} [0,b])$ is~$[z^0 + z^b] f_{s,b,ℓ}(z)$.
-Moreover, looking at the first term of any walk in~$W(…)$
-we find the following relation:
-\begin{align}\label{eq:sum-walks}
-f_{s,b,ℓ}(z)
-	&= z^s \quad\text{when $s = 0$ or~$s = b$,}\\
-	&= z^s + f_{s-1,b,ℓ-1}(z) + f_{s+1,b,ℓ-1}(z)
-	\quad\text{when $s ∈ ⟦1,b-1⟧$.}
+
+Define the formal series
+\begin{align}
+F_{j,b}(x,z) &= ∑_{ℓ ≥ 0} f_{j,b,ℓ}(z) x^{ℓ};\\
+N_{j,b}(x)   &= ∑_{ℓ ≥ 0} N(j →^{ℓ} [0,b]).
 \end{align}
-Define the formal series~$F_{s,b}(x,z) = ∑_{ℓ} f_{s,b,ℓ} x^{ℓ}$;
-then the relations from~\eqref{eq:sum-walks} collect into
-the following recurrence relation and boundary conditions:
-\begin{align}\label{eq:recurrence-F}
-F_{s,b}(x,z)
-&= z^s + \begin{cases}
-0 &\text{for $s ∈ \acco{0,b}$,}\\
-x \pa{F_{s-1,b}(x,z) + F_{s+1,b}(x,z)} & \text{for~$s ∈ ⟦1,b-1⟧$.}\end{cases}
+The series~$F_{j,b}$ and~$N_{j,b}$ have the following properties:
+\begin{enumerate}
+\item \emph{(Symmetry).}
+To any walk~$w = (w_0, …, w_{ℓ})$, where~$w_{ℓ} ∈ \acco{0,b}$,
+one may associate the symmetric walk~$\overline{w} = (b-w_i)$;
+counting the walks in this way one sees that
+$[z^a] f_{b-j,b,ℓ} = [z^{b-a}] f_{j,b,ℓ}$,
+or in other words
+$F_{b-j,b}(x,z) = z^b F_{j,b}(x,1/z)$.
+Likewise, $N_{j,b} = N_{b-j,b}$.
+\item \emph{(Number of steps).}
+Any walk takes exactly $ℓ+1$ values (including its initial value);
+therefore $f_{j,b,ℓ}(1)$ is the count of all values taken by
+elements of~$W(j→^{ℓ} [0,b])$.
+that is, $(ℓ+1) N_{j,b,ℓ}$.
+This implies $F_{j,b}(x,z) = ∑ (ℓ+1) N_{j,b,ℓ} x^{ℓ} = XXX$.
+\item \emph{(First step).}
+Any walk of length~$ℓ$ starting at~$j ∈ ⟦1,b-1⟧$
+has~$ℓ ≥ 1$ and decomposes as $w = (j, w')$
+where~$w' ∈ W(j' →^{ℓ-1} [0,b])$ and $\abs{j-j'} = 1$.
+This implies that, for~$j ∈ ⟦1,b-1⟧$,
+\begin{align}
+N_{j,b,ℓ} &= N_{j-1,b,ℓ-1} + N_{j+1,b,ℓ-1};\\
+\label{eq:Njb}
+N_{j,b}(x) &= x (N_{j-1,b}(x) + N_{j+1,b}(x));\\
+f_{j,b,ℓ} &= N_{j,b,ℓ} z^j + f_{j-1,b,ℓ-1} + f_{j+1,b,ℓ-1};\\
+\label{eq:Fjb}
+F_{j,b}(x,z) &= N_{j,b}(x) z^j + x (F_{j-1,b}(x,z) + F_{j+1,b}(x,z)).
 \end{align}
+% Therefore, $f_{j,b,ℓ} = z^j + f_{j-1,b,ℓ-1} + f_{j+1,b,ℓ+1}$,
+% or: $F_{j,b} = x (\frac{z^j}{1-x} +  F_{j-1,b} + F_{j+1,b})$;
+% $F_{0,b} = 1$; $F_{b,b} = z^b$.
+\end{enumerate}
+% Since each walk finally reaches exactly once the values~$0$ or~$b$,
+% the cardinality of~$W(s→^{ℓ} [0,b])$ is~$[z^0 + z^b] f_{s,b,ℓ}(z)$.
+% 
+\subsection{Extracting information from the series}
+
+From the series~$F_{j,b}(x,z)$ we can recover the following information:
+\begin{enumerate}
+\item the cardinality~$N_{j,b,ℓ}$ of~$W(s→^{ℓ}[0,b])$:
+since each walk passes exactly once by either~$0$ or~$b$,
+we find
+\begin{align}
+N_{j,b}(x) = ∑ N_{j,b,ℓ} x^{ℓ} = [z^0 + z^b] F_{j,b}.
+\end{align}
+Moreover, by symmetry of the random walk,
+$[z^b] F_{j,b} = [z^0] F_{b-j,b}$, so that
+\begin{align}
+N_{j,b}(x) = F_{j,b}(x,0) + F_{b-j,b}(x,0).
+\end{align}
+\item the probability~$P_{j,b,ℓ}$ that
+a (balanced) random walk has length~$ℓ$:
+it is exactly $(1/2)^{ℓ} N_{j,b,ℓ}$,
+which generate the series~$P_{j,b}(x) = N_{j,b}(x/2)$.
+\item given an integer~$ℓ$ and a value~$a ∈ [0,b]$,
+the expected number of times a random element of~$W(ℓ)$
+takes the value~$a$ is~$[z^a]$
+is $[z^a] F_{j,b,ℓ}/N_{j,b,ℓ}$.
+\item the probability that any random step (including the start)
+of a walk of length~$ℓ$ takes the value~$a$
+is~$[z^a] \frac{1}{ℓ+1} F_{j,b,ℓ}/N_{j,b,ℓ}$.
+\item the probability that a random step of a random walk is~$a$
+is~$S_{j,b}(a) = ∑_{ℓ} \frac{2^{-ℓ}}{ℓ+1} [z^a] F_{j,b,ℓ}$.
+Together these numbers generate the series
+\begin{align}
+S_{j,b}(z) = ∑_{a} S_{j,b}(a) z^a
+ = ∑_{ℓ} \frac{2^{-ℓ}}{ℓ+1} F_{j,b,ℓ}(z)
+ = 2 ∫_{0}^{1/2} F_{j,b}(x,z) d x.
+\end{align}
+\end{enumerate}
+
+\subsection{Computing the series~$N$}
+Define~$u = \frac{1}{2x} - √{1/(4x^2)-1}$;
+then $u, 1/u$ are the two characteristic roots of
+the linear recurrence~\eqref{eq:Njb}, so that
+% \begin{align}
+% ρ_{ε}(x) &= \frac{1}{2x} - ε √{\frac{1}{4x^2}-1}.
+% \end{align}
+% Thus,
+this equation, together with the boundary conditions $N_{0,b} = N_{b,b} = 1$,
+has the solution
+\begin{align}
+N_{j,b}
+&= \frac{1-u^{-b}}{u^b -u^{-b}} u^j
+  +\frac{u^b -1}{u^b -u^{-b}} u^{-j}\\
+&= \frac{u^j + u^{b-j}}{u^{b}+1}.
+\end{align}
+
+\subsection{Computing the series~$F$}
+
+% Looking at the first term of any walk in~$W(…)$
+% we find the following relation:
+% \begin{align}\label{eq:sum-walks}
+% f_{s,b,ℓ}(z)
+% 	&= z^s \quad\text{when $s = 0$ or~$s = b$,}\\
+% 	&= z^s + f_{s-1,b,ℓ-1}(z) + f_{s+1,b,ℓ-1}(z)
+% 	\quad\text{when $s ∈ ⟦1,b-1⟧$.}
+% \end{align}
+% then the relations from~\eqref{eq:sum-walks} collect into
+% the following recurrence relation and boundary conditions:
+% \begin{align}\label{eq:recurrence-F}
+% F_{j,b}(x,z)
+% &= \begin{cases}
+% z^j &\text{for $s ∈ \acco{0,b}$,}\\
+% x z^jx \pa{F_{s-1,b}(x,z) + F_{s+1,b}(x,z)} & \text{for~$s ∈ ⟦1,b-1⟧$.}\end{cases}
+% \end{align}
 
 Let~$M_{b}$ be the $(b+1)× (b+1)$ square matrix
 whose coefficient~$(i, i±1)$ is~$1$ for~$i = 2, …, b$;
-then the relations~\eqref{eq:recurrence-F} are, in matrix form,
+then the relations~\eqref{eq:Fjb} are, in matrix form,
 \begin{align}\label{eq:matrix-F}
-(1 - x M_b) \mat{F_{0,b} \\ ⋮ \\ F_{b,b}} &= \mat{1 \\⋮\\z^b}.
+(1 - x M_b) \mat{F_{0,b} \\ ⋮ \\ F_{b,b}} &= \mat{⋮\\ N_{j,b} z^j\\⋮}.
 \end{align}
 % M=b->matrix(b+1,b+1,i,j,(i>1)&&(i<b+1)&&(abs(i-j)==1))
 % F=(s,b)->((1-x*M(b))^-1*vector(b+1,i,z^(i-1))~)[s+1]
@@ -111,6 +206,21 @@ F_b
 &= P_b (1 - x Δ_b)^{-1} P_b^{-1} Z_b
 \end{align}
 
+Let~$θ = \frac{jπ}{b}$, let~$q = \exp(iθ)$
+and~$y ∉ \acco{q, 1/q}$; then (using the relation $q^b = (-1)^j$):
+\begin{align}
+∑_{k=1}^{b-1} \sin \frac{j k π}{b} y^k
+&= \frac{1}{2i} ∑_{k=1}^{b-1} (q^k - q^{-k}) y^k \\
+&= \frac{1}{2i} ∑_{k=1}^{b-1} (qy)^k - (y/q)^k \\
+&= \frac{1}{2i} \pa{\frac{yq-(yq)^b}{1-yq} - \frac{y/q-(y/q)^b}{1-y/q}}\\
+&= \frac{(1-y/q)(yq-(yq)^b)-(1-yq)(y/q-(y/q)^b)}{2i (1-yq)(1-y/q)}\\
+&= \frac{yq-y^b q^b+y^{b+1}q^{b-1}-y/q+y^bq^{-b}-y^{b+1}q^{1-b}}
+	{2i(1-2y \cos θ + y^2)}\\
+&= \frac{y(q-1/q)-(-1)^j y^{b+1}(q^{-1}-q)}
+	{2i(1-2y \cos θ + y^2)}\\
+&= \frac{y(1-(-1)^j y^b)\sin θ}{1 - 2 y \cos θ + y^2}.
+\end{align}
+
 % Let~$ω = \exp \frac{jπ}{b}$.
 Using the relation
 \begin{align}
@@ -171,42 +281,6 @@ F_{j,b} &=
 For~$j = 0$ we do find~$F_{0,b} = 1$
 and likewise (since we assumed $b$~odd) $F_{b,b} = z^b$.
 
-
-\subsection{Extracting information from the series}
-
-From the series~$F_{j,b}(x,z)$ we can recover the following information:
-\begin{enumerate}
-\item the cardinality~$N_{j,b,ℓ}$ of~$W(s→^{ℓ}[0,b])$:
-since each walk passes exactly once by either~$0$ or~$b$,
-we find
-\begin{align}
-N_{j,b}(x) = ∑ N_{j,b,ℓ} x^{ℓ} = [z^0 + z^b] F_{j,b}.
-\end{align}
-Moreover, by symmetry of the random walk,
-$[z^b] F_{j,b} = [z^0] F_{b-j,b}$, so that
-\begin{align}
-N_{j,b}(x) = F_{j,b}(x,0) + F_{b-j,b}(x,0).
-\end{align}
-\item the probability~$P_{j,b,ℓ}$ that
-a (balanced) random walk has length~$ℓ$:
-it is exactly $(1/2)^{ℓ} N_{j,b,ℓ}$,
-which generate the series~$P_{j,b}(x) = N_{j,b}(x/2)$.
-\item given an integer~$ℓ$ and a value~$a ∈ [0,b]$,
-the expected number of times a random element of~$W(ℓ)$
-takes the value~$a$ is~$[z^a]$
-is $[z^a] F_{j,b,ℓ}/N_{j,b,ℓ}$.
-\item the probability that any random step of a walk of length~$ℓ$
-takes the value~$a$
-is~$[z^a] \frac{1}{ℓ+1} F_{j,b,ℓ}/N_{j,b,ℓ}$.
-\item the probability that a random step of a random walk is~$a$
-is~$S_{j,b}(a) = ∑_{ℓ} 2^{-ℓ} [z^a] F_{j,b,ℓ}/(ℓ+1)$.
-Together these numbers generate the series
-\begin{align}
-S_{j,b}(z) = ∑_{a} S_{j,b}(a) z^a
- = ∑_{ℓ} \frac{1}{ℓ+1} F_{j,b,ℓ}(z)
- = 2 ∫_{0}^{1/2} F_{j,b}(x,z) d x.
-\end{align}
-\end{enumerate}
 
 \paragraph{Computing.}
 We compute the limit of~$S_{j,b}(z)$:
