@@ -197,58 +197,45 @@ takes the value~$a$ is~$[z^a]$
 is $[z^a] F_{j,b,ℓ}/N_{j,b,ℓ}$.
 \item the probability that any random step of a walk of length~$ℓ$
 takes the value~$a$
-is~$[z^a] F_{j,b,ℓ}/(ℓ N_{j,b,ℓ})$.
+is~$[z^a] \frac{1}{ℓ+1} F_{j,b,ℓ}/N_{j,b,ℓ}$.
 \item the probability that a random step of a random walk is~$a$
-is~$S_{j,b}(a) = ∑_{ℓ} [z^a] F_{j,b,ℓ}/ℓ$.
+is~$S_{j,b}(a) = ∑_{ℓ} 2^{-ℓ} [z^a] F_{j,b,ℓ}/(ℓ+1)$.
 Together these numbers generate the series
 \begin{align}
-S_{j,b}(y) = ∑_{a} S_{j,b}(a) y^a
- = ∑_{ℓ} \frac{1}{ℓ} F_{j,b,ℓ}(y)
- = ∫ F_{j,b}(y) \frac{d y}{y}.
+S_{j,b}(z) = ∑_{a} S_{j,b}(a) z^a
+ = ∑_{ℓ} \frac{1}{ℓ+1} F_{j,b,ℓ}(z)
+ = 2 ∫_{0}^{1/2} F_{j,b}(x,z) d x.
 \end{align}
 \end{enumerate}
 
-
-From this we can compute $N(s,b,ℓ) = \abs{W(s→^{ℓ}[0,b])} = [z^0 + z^b]F_{s,b}$,
-noting that by symmetry we have $[z^b] F_{s,b} = [z^0] F_{b,s-b}$:
+\paragraph{Computing.}
+We compute the limit of~$S_{j,b}(z)$:
+using $∫ \frac{d x}{1- c x} = -\frac{1}{c} \ln(1-c x)$,
+we find
 \begin{align}
-[z^0] F_{j,b}
-&=∑_{k=1}^{b-1}\frac{\frac 1b \sin \frac{jkπ}{b}
-\tan \frac{kπ}{b}}{1-2x\cos\frac{kπ}{b}} + \Re(i^j);\\
-[z^b] F_{j,b}
-&= [z^0] F_{b-j,b}\\
-&= ∑_{k=1}^{b-1}
-	\frac{\frac 1b \sin\pa{kπ-\frac{jkπ}{b}} \tan \frac{kπ}{b}}
-		{1-2x\cos\frac{kπ}{b}} + \Re(i^{b-j})\\
-&= ∑_{k=1}^{b-1}
-	\frac{\frac 1b (-1)^{k-1} \sin\frac{jkπ}{b} \tan\frac{kπ}{b}}
-		{1-2x\cos\frac{kπ}{b}} + \Re(i^{b-j})\\
-% N_{s,b,ℓ}
-% &= [z^0] F_{s,b} + [z^0] F_{b-s,b}\\
-% &= ∑_{k=1}^{b-1}\frac{\frac 1b \sin \frac{jkπ}{b}
-% \tan \frac{kπ}{b}}{1-2x\cos\frac{kπ}{b}}
-% + ∑_{k=1}^{b-1}\frac{\frac 1b \sin\pa{j
-% + i^j \frac{1+(-1)^j-(iz)^b+(-1)^j(iz)^b}{2}
+S_{j,b}(z)
+&= 2 ∑_{k=1}^{b-1}
+	\pa{\frac 1b \sin \frac{jkπ}{b} \tan \frac{kπ}{b}}
+	\frac{(1-(-1)^k z^b)(1+z^2)}{1-2 \cos \frac{kπ}{b} z + z^2}
+	∫_{0}^{1/2} \frac{d x}{1- 2 x \cos \frac{kπ}{b}}
+	+ \Re(i^j(1+(z/i)^b))\\
+&= - ∑_{k=1}^{b-1}
+	\pa{\frac 1b \sin \frac{jkπ}{b} \tan \frac{kπ}{b}}
+	\frac{\ln(1- 2 \cos \frac{kπ}{b})}{\cos \frac{kπ}{b}}
+	\frac{(1-(-1)^k z^b)(1+z^2)}{1-2 \cos \frac{kπ}{b} z + z^2}
+	+ \Re(i^j) + \Re(i^{j-b}) z^b
 \end{align}
-% For $b → ∞$ we have:
-% \begin{align}
-% \frac 1b \tan \frac{kπ}{b} \sin\frac{jkπ}{b}
-% 	&= \frac{jk^2π^2}{b^3} + O(b^{-5});\\
-% \frac{1}{1-2x \cos \frac{kπ}{b}}
-%  &= \frac{1}{1-2x} - \frac{x k^2 π^2}{(1-2x)^2} \frac{1}{b^2} +
-%  O(b^{-4});\\
-% \frac{1}{1-2z \cos \frac{kπ}{b} + z^2}
-% 	&= \frac{1}{(1-z)^2} - \frac{z k^2 π^2}{(1-z)^4} \frac{1}{b^2} +
-% 	O(b^{-4});\\
-% \end{align}
-% hence
-% \begin{align}
-% F_{j,b} &=
-% ∑_{k=1}^{b-1} \frac{jk^2 π^2}{b^3}
-% 	(1-(-1)^k z^b)(1+z^2)
-% 	\frac{1}{1-2x} \frac{1}{(1-z)^2} \pa{1+O(b^{-2})} + …
-% \end{align}
+
+\paragraph{Limit for~$b$.}
 For~$b → ∞$ and~$\abs{z}<1$ (and thus $z^b → 0$),
+the function~$S_{j,b}(z)$ is a Riemann sum:
+\begin{align}
+S_{j,b}(z)
+&→ -\frac{1+z^2}{π} ∫_{0}^{π}
+	\frac{\sin(jθ) \tan(θ) \ln(1-2\cos θ)}{\cos θ}
+	+ \Re(i^j)\\
+\end{align}
+
 the limit of~$F_{j,b}(x,z)$ is given as a Riemann sum by:
 \begin{align}
 F_{j,b}(x,z)
@@ -256,6 +243,7 @@ F_{j,b}(x,z)
 	\frac{\sin(j θ) \tan(θ)}{(1-2x\cos(θ))(1-2z\cos(θ)+z^2)} d θ
 	+ \mathrm{Re}(i^j)
 \end{align}
+
 Using
 \begin{align}
 \frac{1}{1-2x \cos θ}
